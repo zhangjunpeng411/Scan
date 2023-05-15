@@ -1,5 +1,5 @@
 # :hammer: Scan
-Scanning sample-specific miRNA regulation from bulk and single-cell transcriptomics
+**Scanning sample-specific miRNA regulation from bulk and single-cell transcriptomics**
 
 ## :boom: Background
 In the gene regulation field, the miRNA regulation has attracted broad attentions on account of its potential clinical translation. Therefore, inferring and characterizing miRNA regulation is a central problem for revealing miRNA regulatory mechanisms in systems biology. Just like dynamic biological system in a biological sample (cell or tissue), the miRNA regulation is also dynamic. For example, by using bulk and single-cell transcriptomics data, existing studies have found that the miRNA regulatory networks tend to be condition-specific, tissue-specific and cell-specific. Moreover, it is widely known that the biological samples are characterized by heterogeneity, and are shown to be unique. Thus, to understand the miRNA regulation specific to biological samples (cancer tissues or cells in particular), it is essential to investigate sample-specific miRNA regulation.
