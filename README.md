@@ -14,12 +14,20 @@ A schematic illustration of **Scan** is shown in the folowing.
 
 Given bulk or single-cell transcriptomics data with or without priori information of miRNA-mRNA interactions, Scan can apply 27 computational methods covering 7 types (correlation, distance, information, regression, bayesian, proportionality and causality) to construct miRNA-mRNA relation matrix. By using one of 27 computational methods, Scan constructs two miRNA-mRNA relation matrices (one for all samples and the other for all samples except *k*). For each sample (cell or tissue) *k*, Scan conducts sample-specific network inference from the two constructed miRNA-mRNA relation matrices to infer a miRNA regulatory network specific to the sample *k*. In total, Scan can identify *m* sample-specific miRNA regulatory networks across *m* samples (one network for one sample). In terms of accuracy and scalability, Scan further evaluates the constructed sample-specific miRNA regulatory networks.
 
-## :book: Description of each file in R folder
+## :book: Description of each file in R and GenMiR++ folders
 - **Scan.interp.R**: Utility functions for scanning sample-specific miRNA regulation using a linear interpolation strategy.
 
 - **Scan.perturb.R**: Utility functions for scanning sample-specific miRNA regulation using a statistical perturbation strategy.
 
 - **Case_study.R**: Case study for scanning sample-specific miRNA regulation.
+
+- **evalE.m, GenMiR.m, GenMiR_evalE.m, GenMiR_generic.m, GenMiR_VBEStep.m, GenMiR_VBMStep.m**: Default functions of GenMiR++.
+
+- **GenMiR_SSN.m**: Utility function of scanning sample-specific miRNA regulation using a statistical perturbation strategy. 
+
+- **matrixzcore.m**: Utility function of calculating zscore of a matrix.
+
+- **Main_GenMiR_Scan.interp.m, Main_GenMiR_Scan.perturb.m, GenMiR.R**: Case study for scanning sample-specific miRNA regulation, the network inference method is GenMiR++.
 
 ## :gear: The usage of SCOM
 Paste all files into a single folder (set the folder as the directory of R environment). The users can simply run the scripts as follows.
