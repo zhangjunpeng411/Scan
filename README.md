@@ -37,7 +37,7 @@ source("Case_study.R")
 ```
 
 ## :zap: Quick example to use Scan
-For scanning sample-specific miRNA regulation, users should prepare matched miRNA and mRNA expression data and putative miRNA-target interactions (optional). Paste the datasets and our source file (**Scan.interp.R** and **Scan.perturb.R**) into a single folder (set the folder as the directory of R environment), users can use the following scripts to scan sample-specific miRNA regulation. For convenience, our bulk and single-cell transcriptomics datasets prepared for users are from [here](https://drive.google.com/file/d/1clKczUwxZx5lt6NfnYyBgBBHCIJM7rYs/view?usp=sharing).
+For scanning sample-specific miRNA regulation, users should prepare matched miRNA and mRNA expression data and putative miRNA-target interactions (optional). Paste the datasets and our source file (**Scan.interp.R** and **Scan.perturb.R**) into a single folder (set the folder as the directory of R environment), users can use the following scripts to scan sample-specific miRNA regulation. For convenience, our bulk and single-cell transcriptomics datasets prepared for users are from [here](https://drive.google.com/file/d/1OUkOJW9TDnGDi0lsntR4by8J5-oZsgU1/view?usp=share_link).
 
 ```{r echo=FALSE, results='hide', message=FALSE}
 ## The dataset "K562_19_single-cell_matched_miR_mR.RData" is used in this quick example
