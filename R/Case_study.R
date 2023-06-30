@@ -818,6 +818,11 @@ Scan.interp_Rhop_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA
 Scan.interp_Rhop_timeend_BRCA <- Sys.time()
 Scan.interp_Rhop_runningtime_NULL_BRCA <- Scan.interp_Rhop_timeend_BRCA - Scan.interp_Rhop_timestart_BRCA
 
+Scan.interp_IDA_timestart_BRCA <- Sys.time()
+Scan.interp_IDA_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "IDA", pcmethod = "stable")
+Scan.interp_IDA_timeend_BRCA <- Sys.time()
+Scan.interp_IDA_runningtime_NULL_BRCA <- Scan.interp_IDA_timeend_BRCA - Scan.interp_IDA_timestart_BRCA
+
 # The priori information is TargetScan
 Scan.interp_Pearson_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) Scan.interp_Pearson_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.interp_Spearman_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Spearman_NULL_res_BRCA), function(i) Scan.interp_Spearman_NULL_res_BRCA[[i]] %s% TargetScan_graph)
@@ -844,6 +849,7 @@ Scan.interp_Ridge_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Ridge_NULL_res_B
 Scan.interp_Phit_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Phit_NULL_res_BRCA), function(i) Scan.interp_Phit_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.interp_Phis_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Phis_NULL_res_BRCA), function(i) Scan.interp_Phis_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.interp_Rhop_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Rhop_NULL_res_BRCA), function(i) Scan.interp_Rhop_NULL_res_BRCA[[i]] %s% TargetScan_graph)
+Scan.interp_IDA_TargetScan_res_BRCA <- lapply(seq(Scan.interp_IDA_NULL_res_BRCA), function(i) Scan.interp_IDA_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 
 # The priori information is ENCORI
 Scan.interp_Pearson_ENCORI_res_BRCA <- lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) Scan.interp_Pearson_NULL_res_BRCA[[i]] %s% ENCORI_graph)
@@ -871,6 +877,7 @@ Scan.interp_Ridge_ENCORI_res_BRCA <- lapply(seq(Scan.interp_Ridge_NULL_res_BRCA)
 Scan.interp_Phit_ENCORI_res_BRCA <- lapply(seq(Scan.interp_Phit_NULL_res_BRCA), function(i) Scan.interp_Phit_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 Scan.interp_Phis_ENCORI_res_BRCA <- lapply(seq(Scan.interp_Phis_NULL_res_BRCA), function(i) Scan.interp_Phis_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 Scan.interp_Rhop_ENCORI_res_BRCA <- lapply(seq(Scan.interp_Rhop_NULL_res_BRCA), function(i) Scan.interp_Rhop_NULL_res_BRCA[[i]] %s% ENCORI_graph)
+Scan.interp_IDA_ENCORI_res_BRCA <- lapply(seq(Scan.interp_IDA_NULL_res_BRCA), function(i) Scan.interp_IDA_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 
 # Number of predicted sample-specific interactions
 Scan.interp_Pearson_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_Pearson_NULL_res_BRCA[[i]] ))))
@@ -973,6 +980,9 @@ Scan.interp_Rhop_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.interp_Rhop_NULL_re
 Scan.interp_Rhop_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.interp_Rhop_TargetScan_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_Rhop_TargetScan_res_BRCA[[i]] ))))
 Scan.interp_Rhop_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.interp_Rhop_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_Rhop_ENCORI_res_BRCA[[i]] ))))
 
+Scan.interp_IDA_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.interp_IDA_NULL_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_IDA_NULL_res_BRCA[[i]] ))))
+Scan.interp_IDA_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.interp_IDA_TargetScan_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_IDA_TargetScan_res_BRCA[[i]] ))))
+Scan.interp_IDA_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.interp_IDA_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_IDA_ENCORI_res_BRCA[[i]] ))))
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
 miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
@@ -1078,6 +1088,10 @@ Scan.interp_Rhop_NULL_res_BRCA_validated <- lapply(seq(Scan.interp_Rhop_NULL_res
 Scan.interp_Rhop_TargetScan_res_BRCA_validated <- lapply(seq(Scan.interp_Rhop_TargetScan_res_BRCA), function(i) as_data_frame(Scan.interp_Rhop_TargetScan_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
 Scan.interp_Rhop_ENCORI_res_BRCA_validated <- lapply(seq(Scan.interp_Rhop_ENCORI_res_BRCA), function(i) as_data_frame(Scan.interp_Rhop_ENCORI_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
 
+Scan.interp_IDA_NULL_res_BRCA_validated <- lapply(seq(Scan.interp_IDA_NULL_res_BRCA), function(i) as_data_frame(Scan.interp_IDA_NULL_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_IDA_TargetScan_res_BRCA_validated <- lapply(seq(Scan.interp_IDA_TargetScan_res_BRCA), function(i) as_data_frame(Scan.interp_IDA_TargetScan_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_IDA_ENCORI_res_BRCA_validated <- lapply(seq(Scan.interp_IDA_ENCORI_res_BRCA), function(i) as_data_frame(Scan.interp_IDA_ENCORI_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+
 ## Percentage of experimentally validated sample-specific miRNA-mRNA interactions
 Scan.interp_Pearson_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) 100*nrow(Scan.interp_Pearson_NULL_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_Pearson_NULL_res_BRCA[[i]]))))
 Scan.interp_Pearson_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_Pearson_TargetScan_res_BRCA), function(i) 100*nrow(Scan.interp_Pearson_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_Pearson_TargetScan_res_BRCA[[i]]))))
@@ -1179,6 +1193,10 @@ Scan.interp_Rhop_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_Rh
 Scan.interp_Rhop_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_Rhop_TargetScan_res_BRCA), function(i) 100*nrow(Scan.interp_Rhop_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_Rhop_TargetScan_res_BRCA[[i]]))))
 Scan.interp_Rhop_ENCORI_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_Rhop_ENCORI_res_BRCA), function(i) 100*nrow(Scan.interp_Rhop_ENCORI_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_Rhop_ENCORI_res_BRCA[[i]]))))
 
+Scan.interp_IDA_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_IDA_NULL_res_BRCA), function(i) 100*nrow(Scan.interp_IDA_NULL_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_IDA_NULL_res_BRCA[[i]]))))
+Scan.interp_IDA_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_IDA_TargetScan_res_BRCA), function(i) 100*nrow(Scan.interp_IDA_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_IDA_TargetScan_res_BRCA[[i]]))))
+Scan.interp_IDA_ENCORI_res_BRCA_validated_per <- unlist(lapply(seq(Scan.interp_IDA_ENCORI_res_BRCA), function(i) 100*nrow(Scan.interp_IDA_ENCORI_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.interp_IDA_ENCORI_res_BRCA[[i]]))))
+
 ## Network similarity of sample-specific miRNA reguatory network
 Scan.interp_Pearson_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Pearson_NULL_res_BRCA)
 Scan.interp_Pearson_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Pearson_TargetScan_res_BRCA)
@@ -1279,6 +1297,10 @@ Scan.interp_Phis_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Phis_EN
 Scan.interp_Rhop_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Rhop_NULL_res_BRCA)
 Scan.interp_Rhop_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Rhop_TargetScan_res_BRCA)
 Scan.interp_Rhop_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_Rhop_ENCORI_res_BRCA)
+
+Scan.interp_IDA_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_IDA_NULL_res_BRCA)
+Scan.interp_IDA_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_IDA_TargetScan_res_BRCA)
+Scan.interp_IDA_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.interp_IDA_ENCORI_res_BRCA)
 
 save.image("Scan.interp_BRCA.RData")
 
@@ -1967,7 +1989,6 @@ library(propr)
 library(gtools)
 library(pbapply)
 library(pcaPP)
-library(biclique)
 
 set.seed(123)
 ENCORI <- read.csv("ENCORI.csv", header = TRUE, sep = ",")
@@ -2101,6 +2122,11 @@ Scan.perturb_Rhop_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mR
 Scan.perturb_Rhop_timeend_BRCA <- Sys.time()
 Scan.perturb_Rhop_runningtime_NULL_BRCA <- Scan.perturb_Rhop_timeend_BRCA - Scan.perturb_Rhop_timestart_BRCA
 
+Scan.perturb_IDA_timestart_BRCA <- Sys.time()
+Scan.perturb_IDA_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "IDA", pcmethod = "stable)
+Scan.perturb_IDA_timeend_BRCA <- Sys.time()
+Scan.perturb_IDA_runningtime_NULL_BRCA <- Scan.perturb_IDAp_timeend_BRCA - Scan.perturb_IDA_timestart_BRCA
+
 # The priori information is TargetScan
 Scan.perturb_Pearson_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) Scan.perturb_Pearson_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.perturb_Spearman_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Spearman_NULL_res_BRCA), function(i) Scan.perturb_Spearman_NULL_res_BRCA[[i]] %s% TargetScan_graph)
@@ -2127,6 +2153,7 @@ Scan.perturb_Ridge_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Ridge_NULL_res
 Scan.perturb_Phit_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Phit_NULL_res_BRCA), function(i) Scan.perturb_Phit_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.perturb_Phis_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Phis_NULL_res_BRCA), function(i) Scan.perturb_Phis_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 Scan.perturb_Rhop_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Rhop_NULL_res_BRCA), function(i) Scan.perturb_Rhop_NULL_res_BRCA[[i]] %s% TargetScan_graph)
+Scan.perturb_IDA_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_IDA_NULL_res_BRCA), function(i) Scan.perturb_IDA_NULL_res_BRCA[[i]] %s% TargetScan_graph)
 
 # The priori information is ENCORI
 Scan.perturb_Pearson_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) Scan.perturb_Pearson_NULL_res_BRCA[[i]] %s% ENCORI_graph)
@@ -2154,6 +2181,7 @@ Scan.perturb_Ridge_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_Ridge_NULL_res_BRC
 Scan.perturb_Phit_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_Phit_NULL_res_BRCA), function(i) Scan.perturb_Phit_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 Scan.perturb_Phis_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_Phis_NULL_res_BRCA), function(i) Scan.perturb_Phis_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 Scan.perturb_Rhop_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_Rhop_NULL_res_BRCA), function(i) Scan.perturb_Rhop_NULL_res_BRCA[[i]] %s% ENCORI_graph)
+Scan.perturb_IDA_ENCORI_res_BRCA <- lapply(seq(Scan.perturb_IDA_NULL_res_BRCA), function(i) Scan.perturb_IDA_NULL_res_BRCA[[i]] %s% ENCORI_graph)
 
 # Number of predicted sample-specific interactions
 Scan.perturb_Pearson_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_Pearson_NULL_res_BRCA[[i]] ))))
@@ -2256,6 +2284,9 @@ Scan.perturb_Rhop_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_Rhop_NULL_
 Scan.perturb_Rhop_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_Rhop_TargetScan_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_Rhop_TargetScan_res_BRCA[[i]] ))))
 Scan.perturb_Rhop_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_Rhop_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_Rhop_ENCORI_res_BRCA[[i]] ))))
 
+Scan.perturb_IDA_NULL_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_IDA_NULL_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_IDA_NULL_res_BRCA[[i]] ))))
+Scan.perturb_IDA_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_IDA_TargetScan_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_IDA_TargetScan_res_BRCA[[i]] ))))
+Scan.perturb_IDA_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_IDA_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_IDA_ENCORI_res_BRCA[[i]] ))))
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
 miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
@@ -2361,6 +2392,10 @@ Scan.perturb_Rhop_NULL_res_BRCA_validated <- lapply(seq(Scan.perturb_Rhop_NULL_r
 Scan.perturb_Rhop_TargetScan_res_BRCA_validated <- lapply(seq(Scan.perturb_Rhop_TargetScan_res_BRCA), function(i) as_data_frame(Scan.perturb_Rhop_TargetScan_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
 Scan.perturb_Rhop_ENCORI_res_BRCA_validated <- lapply(seq(Scan.perturb_Rhop_ENCORI_res_BRCA), function(i) as_data_frame(Scan.perturb_Rhop_ENCORI_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
 
+Scan.perturb_IDA_NULL_res_BRCA_validated <- lapply(seq(Scan.perturb_IDA_NULL_res_BRCA), function(i) as_data_frame(Scan.perturb_IDA_NULL_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_IDA_TargetScan_res_BRCA_validated <- lapply(seq(Scan.perturb_IDA_TargetScan_res_BRCA), function(i) as_data_frame(Scan.perturb_IDA_TargetScan_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_IDAp_ENCORI_res_BRCA_validated <- lapply(seq(Scan.perturb_IDA_ENCORI_res_BRCA), function(i) as_data_frame(Scan.perturb_IDA_ENCORI_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
+
 ## Percentage of experimentally validated sample-specific miRNA-mRNA interactions
 Scan.perturb_Pearson_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) 100*nrow(Scan.perturb_Pearson_NULL_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_Pearson_NULL_res_BRCA[[i]]))))
 Scan.perturb_Pearson_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_Pearson_TargetScan_res_BRCA), function(i) 100*nrow(Scan.perturb_Pearson_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_Pearson_TargetScan_res_BRCA[[i]]))))
@@ -2462,6 +2497,10 @@ Scan.perturb_Rhop_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_
 Scan.perturb_Rhop_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_Rhop_TargetScan_res_BRCA), function(i) 100*nrow(Scan.perturb_Rhop_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_Rhop_TargetScan_res_BRCA[[i]]))))
 Scan.perturb_Rhop_ENCORI_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_Rhop_ENCORI_res_BRCA), function(i) 100*nrow(Scan.perturb_Rhop_ENCORI_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_Rhop_ENCORI_res_BRCA[[i]]))))
 
+Scan.perturb_IDA_NULL_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_IDA_NULL_res_BRCA), function(i) 100*nrow(Scan.perturb_IDA_NULL_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_IDA_NULL_res_BRCA[[i]]))))
+Scan.perturb_IDA_TargetScan_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_IDA_TargetScan_res_BRCA), function(i) 100*nrow(Scan.perturb_IDA_TargetScan_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_IDA_TargetScan_res_BRCA[[i]]))))
+Scan.perturb_IDA_ENCORI_res_BRCA_validated_per <- unlist(lapply(seq(Scan.perturb_IDA_ENCORI_res_BRCA), function(i) 100*nrow(Scan.perturb_IDA_ENCORI_res_BRCA_validated[[i]])/nrow(as_data_frame(Scan.perturb_IDA_ENCORI_res_BRCA[[i]]))))
+
 ## Network similarity of sample-specific miRNA reguatory network
 Scan.perturb_Pearson_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Pearson_NULL_res_BRCA)
 Scan.perturb_Pearson_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Pearson_TargetScan_res_BRCA)
@@ -2562,5 +2601,9 @@ Scan.perturb_Phis_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Phis_
 Scan.perturb_Rhop_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Rhop_NULL_res_BRCA)
 Scan.perturb_Rhop_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Rhop_TargetScan_res_BRCA)
 Scan.perturb_Rhop_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_Rhop_ENCORI_res_BRCA)
+
+Scan.perturb_IDA_NULL_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_IDA_NULL_res_BRCA)
+Scan.perturb_IDA_TargetScan_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_IDA_TargetScan_res_BRCA)
+Scan.perturb_IDA_ENCORI_res_BRCA_Sim <- Sim.network_parallel(Scan.perturb_IDA_ENCORI_res_BRCA)
 
 save.image("Scan.perturb_BRCA.RData")
