@@ -23,7 +23,7 @@ Given bulk or single-cell RNA-sequencing data with or without priori information
 
 - **evalE.m, GenMiR.m, GenMiR_evalE.m, GenMiR_generic.m, GenMiR_VBEStep.m, GenMiR_VBMStep.m**: Default functions of GenMiR++.
 
-- **GenMiR_SSN.m**: Utility function of scanning sample-specific miRNA regulation using a statistical perturbation strategy. 
+- **GenMiR_SSN.m**: Utility function of scanning sample-specific miRNA regulation using a statistical perturbation strategy, the network inference method is GenMiR++. 
 
 - **matrixzcore.m**: Utility function of calculating zscore of a matrix.
 
