@@ -9,7 +9,7 @@ To model the dynamic regulatory processes of miRNAs at the single-sample level, 
 A schematic illustration of **Scan** is shown in the folowing.
 
 <p align="center">
-  <img src="https://github.com/zhangjunpeng411/Scan/blob/main/Scan_schematic_illustration.png" alt="Schematic illustration of Scan" border="0.1">
+  <img src="https://github.com/zhangjunpeng411/Scan/blob/master/Scan_schematic_illustration.png" alt="Schematic illustration of Scan" border="0.1">
 </p>
 
 Given bulk or single-cell RNA-sequencing data with or without priori information of miRNA-mRNA interactions, Scan can apply 27 computational methods covering 7 types (correlation, distance, information, regression, bayesian, proportionality and causality) to construct miRNA-mRNA relation matrix. By using one of 27 computational methods, Scan constructs two miRNA-mRNA relation matrices (one for all samples and the other for all samples except *k*). For each sample (cell or tissue) *k*, Scan conducts sample-specific network inference from the two constructed miRNA-mRNA relation matrices to infer a miRNA regulatory network specific to the sample *k*. In total, Scan can identify *m* sample-specific miRNA regulatory networks across *m* samples (one network for one sample). In terms of accuracy and scalability, Scan further evaluates the constructed sample-specific miRNA regulatory networks.
