@@ -12,7 +12,7 @@ A schematic illustration of **Scan** is shown in the folowing.
   <img src="https://github.com/zhangjunpeng411/Scan/blob/master/Scan_schematic_illustration.png" alt="Schematic illustration of Scan" border="0.1">
 </p>
 
-Given bulk or single-cell RNA-sequencing data with or without priori information of miRNA-mRNA interactions, Scan can apply 27 computational methods covering 7 types (correlation, distance, information, regression, bayesian, proportionality and causality) to construct miRNA-mRNA relation matrix. By using one of 27 computational methods, Scan constructs two miRNA-mRNA relation matrices (one for all samples and the other for all samples except *k*). For each sample (cell or tissue) *k*, Scan conducts sample-specific network inference from the two constructed miRNA-mRNA relation matrices to infer a miRNA regulatory network specific to the sample *k*. In total, Scan can identify *m* sample-specific miRNA regulatory networks across *m* samples (one network for one sample). In terms of accuracy and scalability, Scan further evaluates the constructed sample-specific miRNA regulatory networks.
+Given bulk or single-cell RNA-sequencing data with or without prior information of miRNA-mRNA interactions, Scan can apply 27 computational methods covering 7 types (correlation, distance, information, regression, bayesian, proportionality and causality) to construct miRNA-mRNA relation matrix. By using one of 27 computational methods, Scan constructs two miRNA-mRNA relation matrices (one for all samples and the other for all samples except *k*). For each sample (cell or tissue) *k*, Scan conducts sample-specific network inference from the two constructed miRNA-mRNA relation matrices to infer a miRNA regulatory network specific to the sample *k*. In total, Scan can identify *m* sample-specific miRNA regulatory networks across *m* samples (one network for one sample). In terms of accuracy and scalability, Scan further evaluates the constructed sample-specific miRNA regulatory networks.
 
 ## :book: Description of each file in R and GenMiR++ folders
 - **Scan.interp.R**: Utility functions for scanning sample-specific miRNA regulation using a linear interpolation strategy.
@@ -82,7 +82,7 @@ miRNA_scRNA_norm_filter <- miRNA_scRNA_norm_zero[, which(miRNA_scRNA_norm_mean_u
 mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), function(i) mean(mRNA_scRNA_norm_zero[, i])))
 mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
 
-# No priori information
+# No prior information
 Scan.interp_Pearson_timestart <- Sys.time()
 Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.interp_Pearson_timeend <- Sys.time()
