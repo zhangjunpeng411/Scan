@@ -709,7 +709,7 @@ phit_generic <- function(x, y){
     interin <- propr::phit(mat, select = colnames(mat))@matrix
     x.index <- seq(ncol(x))
     y.index <- seq(ncol(y)) + ncol(x)
-    phit.value <- phit.value[y.index, x.index]    
+    phit.value <- interin[y.index, x.index]    
     
     return(phit.value)
 }
