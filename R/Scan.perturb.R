@@ -812,14 +812,14 @@ Scan.perturb <- function(miRExp, mRExp,
 		 num.cores = 32){
     
      if (method == "IDA"){
-        res.all <- IDA(miRExp, mRExp, prior.information, pcmethod = pcmethod, alpha = alpha, p.value = p.value)        
+        res.all <- IDA(miRExp, mRExp, pcmethod = pcmethod, alpha = alpha, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("pcalg", "igraph", "WGCNA"), .export = c("IDA", "querydata")) %dopar% {
-            IDA(miRExp[-i, ], mRExp[-i, ], prior.information, pcmethod = pcmethod, alpha = alpha, p.value = p.value)
+            IDA(miRExp[-i, ], mRExp[-i, ], pcmethod = pcmethod, alpha = alpha, p.value = p.value)
         }     
     
         # shut down the workers
@@ -827,14 +827,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()    
     
     } else if (method == "Pearson"){
-        res.all <- Pearson(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Pearson(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "WGCNA"), .export = c("Pearson", "querydata")) %dopar% {
-            Pearson(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Pearson(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -842,14 +842,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Spearman"){
-        res.all <- Spearman(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Spearman(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "WGCNA"), .export = c("Spearman", "querydata")) %dopar% {
-            Spearman(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Spearman(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -857,14 +857,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Kendall"){
-        res.all <- Kendall(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Kendall(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "WGCNA"), .export = c("Kendall", "querydata")) %dopar% {
-            Kendall(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Kendall(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -873,14 +873,14 @@ Scan.perturb <- function(miRExp, mRExp,
      
 
     } else if (method == "Dcor"){
-        res.all <- Dcor(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Dcor(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "energy"), .export = c("Dcor", "querydata")) %dopar% {
-            Dcor(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Dcor(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -888,14 +888,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "RDC"){
-        res.all <- RDC(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- RDC(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = "igraph", .export = c("RDC", "rdc_generic", "querydata")) %dopar% {
-            RDC(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            RDC(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -903,14 +903,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Hoeffd"){
-        res.all <- Hoeffd(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Hoeffd(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "Hmisc"), .export = c("Hoeffd", "querydata")) %dopar% {
-            Hoeffd(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Hoeffd(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -918,14 +918,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()    
 
     } else if (method == "Zscore"){
-        res.all <- Zscore(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Zscore(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = "igraph", .export = c("Zscore", "querydata")) %dopar% {
-            Zscore(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Zscore(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -933,14 +933,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "MI"){        
-        res.all <- MI(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- MI(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "parmigene"), .export = c("MI", "mi_generic", "querydata", "matrixzscore")) %dopar% {
-            MI(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            MI(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -948,14 +948,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "MIC"){        
-        res.all <- MIC(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- MIC(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "minerva"), .export = c("MIC", "mic_generic", "querydata", "matrixzscore")) %dopar% {
-            MIC(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            MIC(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -963,14 +963,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Lasso"){        
-        res.all <- Lasso(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Lasso(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "glmnet"), .export = c("Lasso", "lasso_generic", "querydata", "matrixzscore")) %dopar% {
-            Lasso(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Lasso(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -978,14 +978,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Elastic"){        
-        res.all <- Elastic(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Elastic(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "glmnet"), .export = c("Elastic", "elastic_generic", "querydata", "matrixzscore")) %dopar% {
-            Elastic(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Elastic(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -993,14 +993,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Ridge"){        
-        res.all <- Ridge(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Ridge(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "glmnet"), .export = c("Ridge", "ridge_generic", "querydata", "matrixzscore")) %dopar% {
-            Ridge(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Ridge(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1008,14 +1008,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Euclidean"){        
-        res.all <- Euclidean(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Euclidean(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "stats", "pracma"), .export = c("Euclidean", "euclidean_generic", "querydata", "matrixzscore")) %dopar% {
-            Euclidean(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Euclidean(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1023,14 +1023,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Manhattan"){        
-        res.all <- Manhattan(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Manhattan(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "stats", "pracma"), .export = c("Manhattan", "manhattan_generic", "querydata", "matrixzscore")) %dopar% {
-            Manhattan(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Manhattan(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1038,14 +1038,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Canberra"){        
-        res.all <- Canberra(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Canberra(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "stats", "pracma"), .export = c("Canberra", "canberra_generic", "querydata", "matrixzscore")) %dopar% {
-            Canberra(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Canberra(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1053,14 +1053,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Chebyshev"){        
-        res.all <- Chebyshev(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Chebyshev(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "stats", "pracma"), .export = c("Chebyshev", "chebyshev_generic", "querydata", "matrixzscore")) %dopar% {
-            Chebyshev(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Chebyshev(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1068,14 +1068,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()   
 
     } else if (method == "Dice"){        
-        res.all <- Dice(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Dice(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Dice", "dice_generic", "distance", "querydata", "matrixzscore")) %dopar% {
-            Dice(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Dice(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1083,14 +1083,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Jaccard"){        
-        res.all <- Jaccard(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Jaccard(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Jaccard", "jaccard_generic", "distance", "querydata", "matrixzscore")) %dopar% {
-            Jaccard(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Jaccard(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1098,14 +1098,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()   
     
     } else if (method == "Mahalanobis"){        
-        res.all <- Mahalanobis(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Mahalanobis(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "StatMatch", "pracma"), .export = c("Mahalanobis", "mahalanobis_generic", "mahalanobis.dist", "querydata", "matrixzscore")) %dopar% {
-            Mahalanobis(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Mahalanobis(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1113,14 +1113,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Cosine"){        
-        res.all <- Cosine(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Cosine(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy"), .export = c("Cosine", "cosine_generic", "distance", "querydata", "matrixzscore")) %dopar% {
-            Cosine(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Cosine(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1128,14 +1128,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Biweight"){        
-        res.all <- Biweight(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Biweight(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "WGCNA"), .export = c("Biweight", "biweight_generic", "querydata", "matrixzscore")) %dopar% {
-            Biweight(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Biweight(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1143,14 +1143,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Weighted_rank"){        
-        res.all <- Weighted_rank(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Weighted_rank(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph"), .export = c("Weighted_rank", "wtd_rank_generic", "querydata")) %dopar% {
-            Weighted_rank(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Weighted_rank(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1158,14 +1158,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()   
     
     } else if (method == "Phit"){        
-        res.all <- Phit(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Phit(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phit", "phit_generic", "phit", "querydata", "matrixzscore")) %dopar% {
-            Phit(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Phit(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1173,14 +1173,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Phis"){        
-        res.all <- Phis(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Phis(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phis", "phis_generic", "phis", "querydata", "matrixzscore")) %dopar% {
-            Phis(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Phis(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
@@ -1188,14 +1188,14 @@ Scan.perturb <- function(miRExp, mRExp,
         stopImplicitCluster()
 
     } else if (method == "Rhop"){        
-        res.all <- Rhop(miRExp, mRExp, prior.information, p.value = p.value)        
+        res.all <- Rhop(miRExp, mRExp, p.value = p.value)        
 	
         # get number of cores to run
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
 	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr"), .export = c("Rhop", "rhop_generic", "perb", "querydata", "matrixzscore")) %dopar% {
-            Rhop(miRExp[-i, ], mRExp[-i, ], prior.information, p.value = p.value)
+            Rhop(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
         # shut down the workers
