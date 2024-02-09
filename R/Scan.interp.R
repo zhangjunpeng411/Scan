@@ -1510,7 +1510,7 @@ Scan.interp <- function(miRExp, mRExp,
                                          ifelse(res.single[[i]] < p.value, 1, 0))   
    
     int.sample.specific.graph <- lapply(seq(res.single), function(i)
-                                      graph_from_incidence_matrix(t(int.sample.specific.incident[[i]])))
+                                      graph_from_biadjacency_matrix(t(int.sample.specific.incident[[i]])))
 
     return(int.sample.specific.graph)
 }
