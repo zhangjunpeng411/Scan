@@ -29,11 +29,13 @@ Given bulk or single-cell RNA-sequencing data with or without prior information 
 
 - **Main_GenMiR_Scan.interp.m, Main_GenMiR_Scan.perturb.m, GenMiR.R**: Case study for scanning sample-specific miRNA regulation, the network inference method is GenMiR++.
 
-## :gear: The usage of SCOM
+## :gear: The usage of Scan
 Paste all files into a single folder (set the folder as the directory of R environment). The users can simply run the scripts as follows.
 
 ```{r echo=FALSE, results='hide', message=FALSE}
-source("Case_study.R")
+source("R/Scan.interp.R")
+source("R/Scan.perturb.R")
+source("R/Case_study.R")
 ```
 
 ## :zap: Quick example to use Scan
