@@ -83,9 +83,9 @@ mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), 
 mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
 
 # No prior information
+source("R/Scan.interp.R")
 Scan.interp_Pearson_timestart <- Sys.time()
 Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.interp_Pearson_timeend <- Sys.time()
-Scan.interp_Pearson_runningtime_NULL <- Scan.interp_Pearson_timeend - Scan.interp_Pearson_timestart
-
+Scan.interp_Pearson_runningtime_NULL <- as.numeric(difftime(Scan.interp_Pearson_timeend, Scan.interp_Pearson_timestart, units = "secs"))
 ```    
