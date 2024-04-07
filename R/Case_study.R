@@ -54,7 +54,6 @@ Scan.interp_Pearson_timestart <- Sys.time()
 Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.interp_Pearson_timeend <- Sys.time()
 Scan.interp_Pearson_runningtime_NULL <- Scan.interp_Pearson_timeend - Scan.interp_Pearson_timestart
-Scan.interp_Pearson_runningtime_NULL_numeric <- as.numeric(Scan.interp_Pearson_runningtime_NULL)
 
 Scan.interp_Spearman_timestart <- Sys.time()
 Scan.interp_Spearman_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Spearman")
