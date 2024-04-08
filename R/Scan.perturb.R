@@ -1074,7 +1074,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Dice", "dice_generic", "distance", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Dice", "dice_generic", "querydata", "matrixzscore")) %dopar% {
             Dice(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
@@ -1089,7 +1089,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Jaccard", "jaccard_generic", "distance", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy", "pracma"), .export = c("Jaccard", "jaccard_generic", "querydata", "matrixzscore")) %dopar% {
             Jaccard(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
@@ -1104,7 +1104,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "StatMatch", "pracma"), .export = c("Mahalanobis", "mahalanobis_generic", "mahalanobis.dist", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "StatMatch", "pracma"), .export = c("Mahalanobis", "mahalanobis_generic", "querydata", "matrixzscore")) %dopar% {
             Mahalanobis(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
@@ -1119,7 +1119,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy"), .export = c("Cosine", "cosine_generic", "distance", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "philentropy"), .export = c("Cosine", "cosine_generic", "querydata", "matrixzscore")) %dopar% {
             Cosine(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
