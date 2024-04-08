@@ -1164,7 +1164,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phit", "phit_generic", "phit", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phit", "phit_generic", "querydata", "matrixzscore")) %dopar% {
             Phit(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     

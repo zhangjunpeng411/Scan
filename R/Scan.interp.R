@@ -1469,7 +1469,7 @@ Scan.interp <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA", "pracma"), .export = c("Phit_Scan", "Phit", "phit_generic", "phit", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA", "pracma"), .export = c("Phit_Scan", "Phit", "phit_generic", "querydata", "matrixzscore")) %dopar% {
              Phit_Scan(miRExp, mRExp, i)
         }     
     
