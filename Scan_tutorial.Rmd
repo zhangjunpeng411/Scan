@@ -1,0 +1,416 @@
+---
+title: "Tutorial for scanning sample-specific miRNA regulation from bulk and single-cell RNA-sequencing data" 
+author: "\\
+    
+    Junpeng Zhang (zjp@dali.edu.cn)\\
+    
+    School of Engineering, Dali University"
+date: '`r Sys.Date()`'
+output:
+    BiocStyle::html_document:
+      toc: yes
+    BiocStyle::pdf_document:
+      toc: yes
+vignette: >
+    %\VignetteIndexEntry{Tutorial for scanning sample-specific miRNA regulation from bulk and single-cell RNA-sequencing data} 
+    %\VignetteEngine{knitr::rmarkdown} 
+    %\usepackage[utf8]{inputenc} 
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo=FALSE, results="asis", message=FALSE}
+BiocStyle::markdown()
+knitr::opts_chunk$set(tidy = FALSE,
+    warning = FALSE,
+    message = FALSE)
+```
+
+# Introduction
+To model the dynamic regulatory processes of miRNAs at the single-sample level, we implement a Sample-specific miRNA regulation (Scan) framework to scan sample-specific miRNA regulation from bulk and single-cell RNA-sequencing data. In this tutorial, we will show how to apply Scan into new data.
+
+# Load required R packages
+Scan provides 27 network inference methods for constructing miRNA-mRNA relation matrix, including Pearson [1], Spearman [2], Kendall [3], Distance correlation (Dcor) [4], Random Dependence Coefficient (RDC) [5], Hoeffding's D statistics (Hoeffding) [6], Z-score [7], Biweight midcorrelation (Bcor) [8], Weighted rank correlation (Wcor) [9], Cosine [10], Euclidean [11], Manhattan [12], Canberra [13], Chebyshev [14], Dice [15], Jaccard [16], Mahalanobise [17], Mutual Information (MI) [18], Maximal Information Coefficient (MIC) [19], Lasso [20], Elastic [20], Ridge [20], GenMiR++ [21],  (Phit) [22],  (Phis) [22],  (Rhop) [22], and Intervention calculus when the Directed acyclic graph is Absent (IDA) [23]. Except for GenMiR++ implemented with Matlab, the other 26 network inference methods are implemented with R. Before applying Scan into new data, users need to install and load the the following 16 R packages. 
+
+```{r, eval=TRUE, include=TRUE}
+# Load required R packages
+library(pracma)
+library(WGCNA)
+library(igraph)
+library(energy)
+library(Hmisc)
+library(parmigene)
+library(minerva)
+library(glmnet)
+library(pcalg)
+library(doParallel)
+library(philentropy)
+library(StatMatch)
+# The propr R package can be obtained from https://github.com/tpq/propr
+library(propr)
+library(gtools)
+library(pbapply)
+library(pcaPP)
+```
+
+# Data preparation
+For scanning sample-specific miRNA regulation, users should prepare matched miRNA and mRNA expression data and putative miRNA-target interactions (optional). In this tutorial, we use K562 single-cell RNA-sequencing data (the expression data of 2822 miRNAs and 21,704 mRNAs in 19 half K562 cells) as an example. Putative miRNA-target interactions are from TargetScan v8.0 [24] and ENCORI [25] (the pilot version is starBase). From TargetScan, a list of 235,109 predicted miRNA-mRNA interactions has been obtained. A list of 55,343 high-confidence miRNA-mRNA interactions is obtained from ENCORI. 
+
+```{r, eval=TRUE, include=TRUE}
+# Load K562 dataset
+load("Data/K562_19_single-cell_matched_miR_mR.RData")
+
+## Preprocess the single-cell sequencing data including log2(x+1), compute the average expression values of duplicate genes and remove genes with constant expression values in all cells
+
+# Transformation using log2(x+1)
+miRNA_scRNA_norm <- log2(miRNA_scRNA_raw+1)
+mRNA_scRNA_norm <- log2(mRNA_scRNA_raw+1)
+
+# Compute the average expression values of duplicate genes
+source("R/Scan.interp.R")
+miRNA_scRNA_norm_average <- Averg_Duplicate(miRNA_scRNA_norm)
+mRNA_scRNA_norm_average <- Averg_Duplicate(mRNA_scRNA_norm)
+
+# Remove genes with zero expression values in all cells
+miRNA_scRNA_norm_mean <- unlist(lapply(seq(dim(miRNA_scRNA_norm_average)[2]), function(i) mean(miRNA_scRNA_norm_average[, i])))
+miRNA_scRNA_norm_zero <- miRNA_scRNA_norm_average[, which(miRNA_scRNA_norm_mean > 0)]
+mRNA_scRNA_norm_mean <- unlist(lapply(seq(dim(mRNA_scRNA_norm_average)[2]), function(i) mean(mRNA_scRNA_norm_average[, i])))
+mRNA_scRNA_norm_zero <- mRNA_scRNA_norm_average[, which(mRNA_scRNA_norm_mean > 0)]
+    
+# Reserve genes with higher mean expression values in all cells
+miRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(miRNA_scRNA_norm_zero)[2]), function(i) mean(miRNA_scRNA_norm_zero[, i])))
+miRNA_scRNA_norm_filter <- miRNA_scRNA_norm_zero[, which(miRNA_scRNA_norm_mean_update > median(miRNA_scRNA_norm_mean_update))]
+mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), function(i) mean(mRNA_scRNA_norm_zero[, i])))
+mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
+    
+# Load prior information
+ENCORI <- read.csv("Data/ENCORI.csv", header = TRUE, sep = ",")
+TargetScan <- read.csv("Data/TargetScan_8.0.csv", header = TRUE, sep = ",")
+ENCORI_graph <-make_graph(c(t(ENCORI)), directed = FALSE)
+TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
+```
+
+For convenience, the full list of our prepared bulk and single-cell transcriptomics datasets in the Scan paper can be obtained from [here](https://drive.google.com/file/d/1MgLNYcALNi4nR4S9MiYTGyUCekbGwM_k/view?usp=drive_link).
+
+# Predicting sample-specific miRNA-mRNA regulatory networks
+The utility functions for scanning sample-specific miRNA regulation are collected in two source files: **Scan.interp.R** (using a linear interpolation strategy) and **Scan.perturb.R** (using a statistical perturbation strategy). In this tutorial, we select five representative network inference methods (Pearson, Euclidean, MI, Lasso, Phit) spanning five types (Correlation, Distance, Information, Regression and Proportionality) and two strategies (Scan.interp and Scan.perturb) to infer cell-specific miRNA regulation from K562 single-cell RNA-sequencing data. The prior information of miRNA targets has three cases: None (no prior information), TargetScan (prior information of TargetScan), ENCORI (prior information of ENCORI).
+
+```{r, eval=TRUE, include=TRUE}
+# No prior information with Scan.interp
+source("R/Scan.interp.R")
+Scan.interp_Pearson_timestart <- Sys.time()
+Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
+Scan.interp_Pearson_timeend <- Sys.time()
+Scan.interp_Pearson_runningtime_NULL <- as.numeric(difftime(Scan.interp_Pearson_timeend, Scan.interp_Pearson_timestart, units = "secs"))
+
+Scan.interp_Euclidean_timestart <- Sys.time()
+Scan.interp_Euclidean_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Euclidean")
+Scan.interp_Euclidean_timeend <- Sys.time()
+Scan.interp_Euclidean_runningtime_NULL <- as.numeric(difftime(Scan.interp_Euclidean_timeend, Scan.interp_Euclidean_timestart, units = "secs"))
+
+Scan.interp_MI_timestart <- Sys.time()
+Scan.interp_MI_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MI")
+Scan.interp_MI_timeend <- Sys.time()
+Scan.interp_MI_runningtime_NULL <- as.numeric(difftime(Scan.interp_MI_timeend, Scan.interp_MI_timestart, units = "secs"))
+
+Scan.interp_Lasso_timestart <- Sys.time()
+Scan.interp_Lasso_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Lasso")
+Scan.interp_Lasso_timeend <- Sys.time()
+Scan.interp_Lasso_runningtime_NULL <- as.numeric(difftime(Scan.interp_Lasso_timeend, Scan.interp_Lasso_timestart, units = "secs"))
+
+Scan.interp_Phit_timestart <- Sys.time()
+Scan.interp_Phit_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phit")
+Scan.interp_Phit_timeend <- Sys.time()
+Scan.interp_Phit_runningtime_NULL <- as.numeric(difftime(Scan.interp_Phit_timeend, Scan.interp_Phit_timestart, units = "secs"))
+
+# Prior information of TargetScan with Scan.interp
+Scan.interp_Pearson_TargetScan_res <- lapply(seq(Scan.interp_Pearson_NULL_res), function(i) Scan.interp_Pearson_NULL_res[[i]] %s% TargetScan_graph)
+Scan.interp_Euclidean_TargetScan_res <- lapply(seq(Scan.interp_Euclidean_NULL_res), function(i) Scan.interp_Euclidean_NULL_res[[i]] %s% TargetScan_graph)
+Scan.interp_MI_TargetScan_res <- lapply(seq(Scan.interp_MI_NULL_res), function(i) Scan.interp_MI_NULL_res[[i]] %s% TargetScan_graph)
+Scan.interp_Lasso_TargetScan_res <- lapply(seq(Scan.interp_Lasso_NULL_res), function(i) Scan.interp_Lasso_NULL_res[[i]] %s% TargetScan_graph)
+Scan.interp_Phit_TargetScan_res <- lapply(seq(Scan.interp_Phit_NULL_res), function(i) Scan.interp_Phit_NULL_res[[i]] %s% TargetScan_graph)
+
+# Prior information of ENCORI with Scan.interp
+Scan.interp_Pearson_ENCORI_res <- lapply(seq(Scan.interp_Pearson_NULL_res), function(i) Scan.interp_Pearson_NULL_res[[i]] %s% ENCORI_graph)
+Scan.interp_Euclidean_ENCORI_res <- lapply(seq(Scan.interp_Euclidean_NULL_res), function(i) Scan.interp_Euclidean_NULL_res[[i]] %s% ENCORI_graph)
+Scan.interp_MI_ENCORI_res <- lapply(seq(Scan.interp_MI_NULL_res), function(i) Scan.interp_MI_NULL_res[[i]] %s% ENCORI_graph)
+Scan.interp_Lasso_ENCORI_res <- lapply(seq(Scan.interp_Lasso_NULL_res), function(i) Scan.interp_Lasso_NULL_res[[i]] %s% ENCORI_graph)
+Scan.interp_Phit_ENCORI_res <- lapply(seq(Scan.interp_Phit_NULL_res), function(i) Scan.interp_Phit_NULL_res[[i]] %s% ENCORI_graph)
+
+# No prior information with Scan.perturb
+source("R/Scan.perturb.R")
+Scan.perturb_Pearson_timestart <- Sys.time()
+Scan.perturb_Pearson_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
+Scan.perturb_Pearson_timeend <- Sys.time()
+Scan.perturb_Pearson_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Pearson_timeend, Scan.perturb_Pearson_timestart, units = "secs"))
+
+Scan.perturb_Euclidean_timestart <- Sys.time()
+Scan.perturb_Euclidean_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Euclidean")
+Scan.perturb_Euclidean_timeend <- Sys.time()
+Scan.perturb_Euclidean_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Euclidean_timeend, Scan.perturb_Euclidean_timestart, units = "secs"))
+
+Scan.perturb_MI_timestart <- Sys.time()
+Scan.perturb_MI_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MI")
+Scan.perturb_MI_timeend <- Sys.time()
+Scan.perturb_MI_runningtime_NULL <- as.numeric(difftime(Scan.perturb_MI_timeend, Scan.perturb_MI_timestart, units = "secs"))
+
+Scan.perturb_Lasso_timestart <- Sys.time()
+Scan.perturb_Lasso_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Lasso")
+Scan.perturb_Lasso_timeend <- Sys.time()
+Scan.perturb_Lasso_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Lasso_timeend, Scan.perturb_Lasso_timestart, units = "secs"))
+
+Scan.perturb_Phit_timestart <- Sys.time()
+Scan.perturb_Phit_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phit")
+Scan.perturb_Phit_timeend <- Sys.time()
+Scan.perturb_Phit_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Phit_timeend, Scan.perturb_Phit_timestart, units = "secs"))
+
+# Prior information of TargetScan with Scan.perturb
+Scan.perturb_Pearson_TargetScan_res <- lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) Scan.perturb_Pearson_NULL_res[[i]] %s% TargetScan_graph)
+Scan.perturb_Euclidean_TargetScan_res <- lapply(seq(Scan.perturb_Euclidean_NULL_res), function(i) Scan.perturb_Euclidean_NULL_res[[i]] %s% TargetScan_graph)
+Scan.perturb_MI_TargetScan_res <- lapply(seq(Scan.perturb_MI_NULL_res), function(i) Scan.perturb_MI_NULL_res[[i]] %s% TargetScan_graph)
+Scan.perturb_Lasso_TargetScan_res <- lapply(seq(Scan.perturb_Lasso_NULL_res), function(i) Scan.perturb_Lasso_NULL_res[[i]] %s% TargetScan_graph)
+Scan.perturb_Phit_TargetScan_res <- lapply(seq(Scan.perturb_Phit_NULL_res), function(i) Scan.perturb_Phit_NULL_res[[i]] %s% TargetScan_graph)
+
+# Prior information of ENCORI with Scan.perturb
+Scan.perturb_Pearson_ENCORI_res <- lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) Scan.perturb_Pearson_NULL_res[[i]] %s% ENCORI_graph)
+Scan.perturb_Euclidean_ENCORI_res <- lapply(seq(Scan.perturb_Euclidean_NULL_res), function(i) Scan.perturb_Euclidean_NULL_res[[i]] %s% ENCORI_graph)
+Scan.perturb_MI_ENCORI_res <- lapply(seq(Scan.perturb_MI_NULL_res), function(i) Scan.perturb_MI_NULL_res[[i]] %s% ENCORI_graph)
+Scan.perturb_Lasso_ENCORI_res <- lapply(seq(Scan.perturb_Lasso_NULL_res), function(i) Scan.perturb_Lasso_NULL_res[[i]] %s% ENCORI_graph)
+Scan.perturb_Phit_ENCORI_res <- lapply(seq(Scan.perturb_Phit_NULL_res), function(i) Scan.perturb_Phit_NULL_res[[i]] %s% ENCORI_graph)
+```
+
+# Accuracy comparison
+For accuracy comparison, the ground truth of miRNA-mRNA interactions are acquired from miRTarBase v9.0 [26] and TarBase v8.0 [27] at multi-sample level for validation. We have 10 combinations (5 network inference methods and 2 strategies), if a combination has a larger average percentage of validated miRNA-mRNA interactions, the combination will have higher accuracy.
+
+```{r, eval=TRUE, include=TRUE}
+# Number of predicted sample-specific interactions using Scan.interp
+Scan.interp_Pearson_NULL_res_num <- unlist(lapply(seq(Scan.interp_Pearson_NULL_res), function(i) nrow(as_data_frame(Scan.interp_Pearson_NULL_res[[i]] ))))
+Scan.interp_Pearson_TargetScan_res_num <- unlist(lapply(seq(Scan.interp_Pearson_TargetScan_res), function(i) nrow(as_data_frame(Scan.interp_Pearson_TargetScan_res[[i]] ))))
+Scan.interp_Pearson_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_Pearson_ENCORI_res), function(i) nrow(as_data_frame(Scan.interp_Pearson_ENCORI_res[[i]] ))))
+
+Scan.interp_Euclidean_NULL_res_num <- unlist(lapply(seq(Scan.interp_Euclidean_NULL_res), function(i) nrow(as_data_frame(Scan.interp_Euclidean_NULL_res[[i]] ))))
+Scan.interp_Euclidean_TargetScan_res_num <- unlist(lapply(seq(Scan.interp_Euclidean_TargetScan_res), function(i) nrow(as_data_frame(Scan.interp_Euclidean_TargetScan_res[[i]] ))))
+Scan.interp_Euclidean_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_Euclidean_ENCORI_res), function(i) nrow(as_data_frame(Scan.interp_Euclidean_ENCORI_res[[i]] ))))
+
+Scan.interp_MI_NULL_res_num <- unlist(lapply(seq(Scan.interp_MI_NULL_res), function(i) nrow(as_data_frame(Scan.interp_MI_NULL_res[[i]] ))))
+Scan.interp_MI_TargetScan_res_num <- unlist(lapply(seq(Scan.interp_MI_TargetScan_res), function(i) nrow(as_data_frame(Scan.interp_MI_TargetScan_res[[i]] ))))
+Scan.interp_MI_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_MI_ENCORI_res), function(i) nrow(as_data_frame(Scan.interp_MI_ENCORI_res[[i]] ))))
+
+Scan.interp_Lasso_NULL_res_num <- unlist(lapply(seq(Scan.interp_Lasso_NULL_res), function(i) nrow(as_data_frame(Scan.interp_Lasso_NULL_res[[i]] ))))
+Scan.interp_Lasso_TargetScan_res_num <- unlist(lapply(seq(Scan.interp_Lasso_TargetScan_res), function(i) nrow(as_data_frame(Scan.interp_Lasso_TargetScan_res[[i]] ))))
+Scan.interp_Lasso_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_Lasso_ENCORI_res), function(i) nrow(as_data_frame(Scan.interp_Lasso_ENCORI_res[[i]] ))))
+
+Scan.interp_Phit_NULL_res_num <- unlist(lapply(seq(Scan.interp_Phit_NULL_res), function(i) nrow(as_data_frame(Scan.interp_Phit_NULL_res[[i]] ))))
+Scan.interp_Phit_TargetScan_res_num <- unlist(lapply(seq(Scan.interp_Phit_TargetScan_res), function(i) nrow(as_data_frame(Scan.interp_Phit_TargetScan_res[[i]] ))))
+Scan.interp_Phit_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_Phit_ENCORI_res), function(i) nrow(as_data_frame(Scan.interp_Phit_ENCORI_res[[i]] ))))
+
+# Experimentally validated sample-specific miRNA-mRNA interactions using Scan.interp
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
+
+Scan.interp_Pearson_NULL_res_validated <- lapply(seq(Scan.interp_Pearson_NULL_res), function(i) as_data_frame(Scan.interp_Pearson_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Pearson_TargetScan_res_validated <- lapply(seq(Scan.interp_Pearson_TargetScan_res), function(i) as_data_frame(Scan.interp_Pearson_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Pearson_ENCORI_res_validated <- lapply(seq(Scan.interp_Pearson_ENCORI_res), function(i) as_data_frame(Scan.interp_Pearson_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.interp_Euclidean_NULL_res_validated <- lapply(seq(Scan.interp_Euclidean_NULL_res), function(i) as_data_frame(Scan.interp_Euclidean_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Euclidean_TargetScan_res_validated <- lapply(seq(Scan.interp_Euclidean_TargetScan_res), function(i) as_data_frame(Scan.interp_Euclidean_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Euclidean_ENCORI_res_validated <- lapply(seq(Scan.interp_Euclidean_ENCORI_res), function(i) as_data_frame(Scan.interp_Euclidean_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.interp_MI_NULL_res_validated <- lapply(seq(Scan.interp_MI_NULL_res), function(i) as_data_frame(Scan.interp_MI_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_MI_TargetScan_res_validated <- lapply(seq(Scan.interp_MI_TargetScan_res), function(i) as_data_frame(Scan.interp_MI_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_MI_ENCORI_res_validated <- lapply(seq(Scan.interp_MI_ENCORI_res), function(i) as_data_frame(Scan.interp_MI_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.interp_Lasso_NULL_res_validated <- lapply(seq(Scan.interp_Lasso_NULL_res), function(i) as_data_frame(Scan.interp_Lasso_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Lasso_TargetScan_res_validated <- lapply(seq(Scan.interp_Lasso_TargetScan_res), function(i) as_data_frame(Scan.interp_Lasso_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Lasso_ENCORI_res_validated <- lapply(seq(Scan.interp_Lasso_ENCORI_res), function(i) as_data_frame(Scan.interp_Lasso_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.interp_Phit_NULL_res_validated <- lapply(seq(Scan.interp_Phit_NULL_res), function(i) as_data_frame(Scan.interp_Phit_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Phit_TargetScan_res_validated <- lapply(seq(Scan.interp_Phit_TargetScan_res), function(i) as_data_frame(Scan.interp_Phit_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.interp_Phit_ENCORI_res_validated <- lapply(seq(Scan.interp_Phit_ENCORI_res), function(i) as_data_frame(Scan.interp_Phit_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+## Percentage of experimentally validated sample-specific miRNA-mRNA interactions using Scan.interp
+Scan.interp_Pearson_NULL_res_validated_per <- unlist(lapply(seq(Scan.interp_Pearson_NULL_res), function(i) 100*nrow(Scan.interp_Pearson_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Pearson_NULL_res[[i]]))))
+Scan.interp_Pearson_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.interp_Pearson_TargetScan_res), function(i) 100*nrow(Scan.interp_Pearson_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Pearson_TargetScan_res[[i]]))))
+Scan.interp_Pearson_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.interp_Pearson_ENCORI_res), function(i) 100*nrow(Scan.interp_Pearson_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Pearson_ENCORI_res[[i]]))))
+
+Scan.interp_Euclidean_NULL_res_validated_per <- unlist(lapply(seq(Scan.interp_Euclidean_NULL_res), function(i) 100*nrow(Scan.interp_Euclidean_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Euclidean_NULL_res[[i]]))))
+Scan.interp_Euclidean_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.interp_Euclidean_TargetScan_res), function(i) 100*nrow(Scan.interp_Euclidean_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Euclidean_TargetScan_res[[i]]))))
+Scan.interp_Euclidean_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.interp_Euclidean_ENCORI_res), function(i) 100*nrow(Scan.interp_Euclidean_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Euclidean_ENCORI_res[[i]]))))
+
+Scan.interp_MI_NULL_res_validated_per <- unlist(lapply(seq(Scan.interp_MI_NULL_res), function(i) 100*nrow(Scan.interp_MI_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.interp_MI_NULL_res[[i]]))))
+Scan.interp_MI_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.interp_MI_TargetScan_res), function(i) 100*nrow(Scan.interp_MI_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.interp_MI_TargetScan_res[[i]]))))
+Scan.interp_MI_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.interp_MI_ENCORI_res), function(i) 100*nrow(Scan.interp_MI_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.interp_MI_ENCORI_res[[i]]))))
+
+Scan.interp_Lasso_NULL_res_validated_per <- unlist(lapply(seq(Scan.interp_Lasso_NULL_res), function(i) 100*nrow(Scan.interp_Lasso_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Lasso_NULL_res[[i]]))))
+Scan.interp_Lasso_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.interp_Lasso_TargetScan_res), function(i) 100*nrow(Scan.interp_Lasso_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Lasso_TargetScan_res[[i]]))))
+Scan.interp_Lasso_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.interp_Lasso_ENCORI_res), function(i) 100*nrow(Scan.interp_Lasso_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Lasso_ENCORI_res[[i]]))))
+
+Scan.interp_Phit_NULL_res_validated_per <- unlist(lapply(seq(Scan.interp_Phit_NULL_res), function(i) 100*nrow(Scan.interp_Phit_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Phit_NULL_res[[i]]))))
+Scan.interp_Phit_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.interp_Phit_TargetScan_res), function(i) 100*nrow(Scan.interp_Phit_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Phit_TargetScan_res[[i]]))))
+Scan.interp_Phit_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.interp_Phit_ENCORI_res), function(i) 100*nrow(Scan.interp_Phit_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.interp_Phit_ENCORI_res[[i]]))))
+
+# Number of predicted sample-specific interactions using Scan.perturb
+Scan.perturb_Pearson_NULL_res_num <- unlist(lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) nrow(as_data_frame(Scan.perturb_Pearson_NULL_res[[i]] ))))
+Scan.perturb_Pearson_TargetScan_res_num <- unlist(lapply(seq(Scan.perturb_Pearson_TargetScan_res), function(i) nrow(as_data_frame(Scan.perturb_Pearson_TargetScan_res[[i]] ))))
+Scan.perturb_Pearson_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_Pearson_ENCORI_res), function(i) nrow(as_data_frame(Scan.perturb_Pearson_ENCORI_res[[i]] ))))
+
+Scan.perturb_Euclidean_NULL_res_num <- unlist(lapply(seq(Scan.perturb_Euclidean_NULL_res), function(i) nrow(as_data_frame(Scan.perturb_Euclidean_NULL_res[[i]] ))))
+Scan.perturb_Euclidean_TargetScan_res_num <- unlist(lapply(seq(Scan.perturb_Euclidean_TargetScan_res), function(i) nrow(as_data_frame(Scan.perturb_Euclidean_TargetScan_res[[i]] ))))
+Scan.perturb_Euclidean_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_Euclidean_ENCORI_res), function(i) nrow(as_data_frame(Scan.perturb_Euclidean_ENCORI_res[[i]] ))))
+
+Scan.perturb_MI_NULL_res_num <- unlist(lapply(seq(Scan.perturb_MI_NULL_res), function(i) nrow(as_data_frame(Scan.perturb_MI_NULL_res[[i]] ))))
+Scan.perturb_MI_TargetScan_res_num <- unlist(lapply(seq(Scan.perturb_MI_TargetScan_res), function(i) nrow(as_data_frame(Scan.perturb_MI_TargetScan_res[[i]] ))))
+Scan.perturb_MI_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_MI_ENCORI_res), function(i) nrow(as_data_frame(Scan.perturb_MI_ENCORI_res[[i]] ))))
+
+Scan.perturb_Lasso_NULL_res_num <- unlist(lapply(seq(Scan.perturb_Lasso_NULL_res), function(i) nrow(as_data_frame(Scan.perturb_Lasso_NULL_res[[i]] ))))
+Scan.perturb_Lasso_TargetScan_res_num <- unlist(lapply(seq(Scan.perturb_Lasso_TargetScan_res), function(i) nrow(as_data_frame(Scan.perturb_Lasso_TargetScan_res[[i]] ))))
+Scan.perturb_Lasso_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_Lasso_ENCORI_res), function(i) nrow(as_data_frame(Scan.perturb_Lasso_ENCORI_res[[i]] ))))
+
+Scan.perturb_Phit_NULL_res_num <- unlist(lapply(seq(Scan.perturb_Phit_NULL_res), function(i) nrow(as_data_frame(Scan.perturb_Phit_NULL_res[[i]] ))))
+Scan.perturb_Phit_TargetScan_res_num <- unlist(lapply(seq(Scan.perturb_Phit_TargetScan_res), function(i) nrow(as_data_frame(Scan.perturb_Phit_TargetScan_res[[i]] ))))
+Scan.perturb_Phit_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_Phit_ENCORI_res), function(i) nrow(as_data_frame(Scan.perturb_Phit_ENCORI_res[[i]] ))))
+
+# Experimentally validated sample-specific miRNA-mRNA interactions using Scan.perturb
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
+
+Scan.perturb_Pearson_NULL_res_validated <- lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) as_data_frame(Scan.perturb_Pearson_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Pearson_TargetScan_res_validated <- lapply(seq(Scan.perturb_Pearson_TargetScan_res), function(i) as_data_frame(Scan.perturb_Pearson_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Pearson_ENCORI_res_validated <- lapply(seq(Scan.perturb_Pearson_ENCORI_res), function(i) as_data_frame(Scan.perturb_Pearson_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.perturb_Euclidean_NULL_res_validated <- lapply(seq(Scan.perturb_Euclidean_NULL_res), function(i) as_data_frame(Scan.perturb_Euclidean_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Euclidean_TargetScan_res_validated <- lapply(seq(Scan.perturb_Euclidean_TargetScan_res), function(i) as_data_frame(Scan.perturb_Euclidean_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Euclidean_ENCORI_res_validated <- lapply(seq(Scan.perturb_Euclidean_ENCORI_res), function(i) as_data_frame(Scan.perturb_Euclidean_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.perturb_MI_NULL_res_validated <- lapply(seq(Scan.perturb_MI_NULL_res), function(i) as_data_frame(Scan.perturb_MI_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_MI_TargetScan_res_validated <- lapply(seq(Scan.perturb_MI_TargetScan_res), function(i) as_data_frame(Scan.perturb_MI_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_MI_ENCORI_res_validated <- lapply(seq(Scan.perturb_MI_ENCORI_res), function(i) as_data_frame(Scan.perturb_MI_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.perturb_Lasso_NULL_res_validated <- lapply(seq(Scan.perturb_Lasso_NULL_res), function(i) as_data_frame(Scan.perturb_Lasso_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Lasso_TargetScan_res_validated <- lapply(seq(Scan.perturb_Lasso_TargetScan_res), function(i) as_data_frame(Scan.perturb_Lasso_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Lasso_ENCORI_res_validated <- lapply(seq(Scan.perturb_Lasso_ENCORI_res), function(i) as_data_frame(Scan.perturb_Lasso_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+Scan.perturb_Phit_NULL_res_validated <- lapply(seq(Scan.perturb_Phit_NULL_res), function(i) as_data_frame(Scan.perturb_Phit_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Phit_TargetScan_res_validated <- lapply(seq(Scan.perturb_Phit_TargetScan_res), function(i) as_data_frame(Scan.perturb_Phit_TargetScan_res[[i]] %s% miRTarget_groundtruth_graph))
+Scan.perturb_Phit_ENCORI_res_validated <- lapply(seq(Scan.perturb_Phit_ENCORI_res), function(i) as_data_frame(Scan.perturb_Phit_ENCORI_res[[i]] %s% miRTarget_groundtruth_graph))
+
+## Percentage of experimentally validated sample-specific miRNA-mRNA interactions using Scan.perturb
+Scan.perturb_Pearson_NULL_res_validated_per <- unlist(lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) 100*nrow(Scan.perturb_Pearson_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Pearson_NULL_res[[i]]))))
+Scan.perturb_Pearson_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.perturb_Pearson_TargetScan_res), function(i) 100*nrow(Scan.perturb_Pearson_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Pearson_TargetScan_res[[i]]))))
+Scan.perturb_Pearson_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.perturb_Pearson_ENCORI_res), function(i) 100*nrow(Scan.perturb_Pearson_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Pearson_ENCORI_res[[i]]))))
+
+Scan.perturb_Euclidean_NULL_res_validated_per <- unlist(lapply(seq(Scan.perturb_Euclidean_NULL_res), function(i) 100*nrow(Scan.perturb_Euclidean_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Euclidean_NULL_res[[i]]))))
+Scan.perturb_Euclidean_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.perturb_Euclidean_TargetScan_res), function(i) 100*nrow(Scan.perturb_Euclidean_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Euclidean_TargetScan_res[[i]]))))
+Scan.perturb_Euclidean_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.perturb_Euclidean_ENCORI_res), function(i) 100*nrow(Scan.perturb_Euclidean_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Euclidean_ENCORI_res[[i]]))))
+
+Scan.perturb_MI_NULL_res_validated_per <- unlist(lapply(seq(Scan.perturb_MI_NULL_res), function(i) 100*nrow(Scan.perturb_MI_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_MI_NULL_res[[i]]))))
+Scan.perturb_MI_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.perturb_MI_TargetScan_res), function(i) 100*nrow(Scan.perturb_MI_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_MI_TargetScan_res[[i]]))))
+Scan.perturb_MI_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.perturb_MI_ENCORI_res), function(i) 100*nrow(Scan.perturb_MI_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_MI_ENCORI_res[[i]]))))
+
+Scan.perturb_Lasso_NULL_res_validated_per <- unlist(lapply(seq(Scan.perturb_Lasso_NULL_res), function(i) 100*nrow(Scan.perturb_Lasso_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Lasso_NULL_res[[i]]))))
+Scan.perturb_Lasso_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.perturb_Lasso_TargetScan_res), function(i) 100*nrow(Scan.perturb_Lasso_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Lasso_TargetScan_res[[i]]))))
+Scan.perturb_Lasso_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.perturb_Lasso_ENCORI_res), function(i) 100*nrow(Scan.perturb_Lasso_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Lasso_ENCORI_res[[i]]))))
+
+Scan.perturb_Phit_NULL_res_validated_per <- unlist(lapply(seq(Scan.perturb_Phit_NULL_res), function(i) 100*nrow(Scan.perturb_Phit_NULL_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Phit_NULL_res[[i]]))))
+Scan.perturb_Phit_TargetScan_res_validated_per <- unlist(lapply(seq(Scan.perturb_Phit_TargetScan_res), function(i) 100*nrow(Scan.perturb_Phit_TargetScan_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Phit_TargetScan_res[[i]]))))
+Scan.perturb_Phit_ENCORI_res_validated_per <- unlist(lapply(seq(Scan.perturb_Phit_ENCORI_res), function(i) 100*nrow(Scan.perturb_Phit_ENCORI_res_validated[[i]])/nrow(as_data_frame(Scan.perturb_Phit_ENCORI_res[[i]]))))
+```
+
+A combination with higher accuracy will obtain a larger rank score. A combination with a larger rank score is regarded as a better or practical combination.
+```{r, eval=TRUE, include=TRUE}
+## Calculate rank score of 10 combinations (5 network inference methods and 2 strategies)
+AP_None <- c(mean(Scan.interp_Pearson_NULL_res_validated_per), mean(Scan.interp_Euclidean_NULL_res_validated_per), mean(Scan.interp_MI_NULL_res_validated_per), mean(Scan.interp_Lasso_NULL_res_validated_per), mean(Scan.interp_Phit_NULL_res_validated_per),
+mean(Scan.perturb_Pearson_NULL_res_validated_per), mean(Scan.perturb_Euclidean_NULL_res_validated_per), mean(Scan.perturb_MI_NULL_res_validated_per), mean(Scan.perturb_Lasso_NULL_res_validated_per), mean(Scan.perturb_Phit_NULL_res_validated_per))
+
+AP_TargetScan <- c(mean(Scan.interp_Pearson_TargetScan_res_validated_per), mean(Scan.interp_Euclidean_TargetScan_res_validated_per), mean(Scan.interp_MI_TargetScan_res_validated_per), mean(Scan.interp_Lasso_TargetScan_res_validated_per), mean(Scan.interp_Phit_TargetScan_res_validated_per),
+mean(Scan.perturb_Pearson_TargetScan_res_validated_per), mean(Scan.perturb_Euclidean_TargetScan_res_validated_per), mean(Scan.perturb_MI_TargetScan_res_validated_per), mean(Scan.perturb_Lasso_TargetScan_res_validated_per), mean(Scan.perturb_Phit_TargetScan_res_validated_per))
+
+AP_ENCORI <- c(mean(Scan.interp_Pearson_TargetScan_res_validated_per), mean(Scan.interp_Euclidean_TargetScan_res_validated_per), mean(Scan.interp_MI_NULL_res_validated_per), mean(Scan.interp_Lasso_TargetScan_res_validated_per), mean(Scan.interp_Phit_TargetScan_res_validated_per),
+mean(Scan.perturb_Pearson_TargetScan_res_validated_per), mean(Scan.perturb_Euclidean_TargetScan_res_validated_per), mean(Scan.perturb_MI_NULL_res_validated_per), mean(Scan.perturb_Lasso_TargetScan_res_validated_per), mean(Scan.perturb_Phit_TargetScan_res_validated_per))
+
+AP_None_rank <- rank(AP_None)
+AP_TargetScan_rank <- rank(AP_TargetScan)
+AP_ENCORI_rank <- rank(AP_ENCORI)
+AP_rank <- (AP_None_rank + AP_TargetScan_rank + AP_ENCORI_rank)/3
+```
+
+# Efficiency comparison
+For efficiency comparison, we compare the runtime of different combinations in the K562 single-cell RNA-sequencing data. If a combination takes less runtime in the K562 single-cell RNA-sequencing data, the combination will obtain a larger rank score and have better efficiency.
+
+```{r, eval=TRUE, include=TRUE}
+## Calculate rank score of 10 combinations (5 network inference methods and 2 strategies)
+Time <- c(Scan.interp_Pearson_runningtime_NULL, Scan.interp_Euclidean_runningtime_NULL, Scan.interp_MI_runningtime_NULL, Scan.interp_Lasso_runningtime_NULL, Scan.interp_Phit_runningtime_NULL, Scan.perturb_Pearson_runningtime_NULL, Scan.perturb_Euclidean_runningtime_NULL, Scan.perturb_MI_runningtime_NULL, Scan.perturb_Lasso_runningtime_NULL, Scan.perturb_Phit_runningtime_NULL)
+
+Time_rank <- rank(-Time)
+```
+
+# Optimal combination selection
+For selecting optimal combination, we consider both accuracy and efficiency and use an overall rank score [28] to evaluate the performance of each combination. A combination with a larger overall rank score is regarded as a optimal combination.
+
+```{r, eval=TRUE, include=TRUE}
+Overall_rank <- (AP_rank + Time_rank)/2
+```
+
+# Conclusions
+In this tutorial, we only list 10 combinations (5 network inference methods and 2 strategies) to show how to select an optimal combination to identify sample-specific miRNA regulation. Noted that Scan has 54 combinations (27 network inference methods and 2 strategies) to study sample-specific miRNA regulation. Taken together, Scan provides a useful method to help infer sample-specific miRNA regulation for new data, benchmark new network inference methods and deepen the understanding of miRNA regulation at the resolution of individual samples.
+
+# References
+[1] Pearson K. Notes on the history of correlation. Biometrika. 1920;13:25–45.
+
+[2] Spearman C. “General intelligence,” objectively determined and measured. The American Journal of Psychology. 1904;15:201–92.
+
+[3] Kendall MG. A new measure of rank correlation. Biometrika. 1938;30:81–93.
+
+[4] Szekely GJ, Rizzo ML, Bakirov NK. Measuring and testing dependence by correlation of distances. The Annals of Statistics. 2007;35:2769–94.
+
+[5] Lopez-Paz D, Hennig P, Schölkopf B. The randomized dependence coefficient. In: Proceedings of the 26th International Conference on Neural Information Processing Systems - Volume 1. Red Hook, NY, USA: Curran Associates Inc.; 2013. p. 1–9.
+
+[6] Hoeffding W. A non-parametric test of independence. The Annals of Mathematical Statistics. 1948;19:546–57.
+
+[7] Prill RJ, Marbach D, Saez-Rodriguez J, Sorger PK, Alexopoulos LG, Xue X, et al. Towards a rigorous assessment of systems biology models: the DREAM3 challenges. PLoS One. 2010;5:e9202–e9202.
+
+[8] Wilcox R. Introduction to robust estimation and hypothesis testing. Academic Press; 2017.
+
+[9] Zar J. Biostatistical analysis. Prentice-Hall/Pearson; 2010.
+
+[10] Deza E, Deza M-M. Dictionary of distances. Amsterdam: Elsevier; 2006.
+
+[11] Deza MM, Deza E. Encyclopedia of distances. In: Deza E, Deza MM, editors. Encyclopedia of Distances. Berlin, Heidelberg: Springer Berlin Heidelberg; 2009. p. 1–583.
+
+[12] Craw S. Manhattan distance. In: Sammut C, Webb GI, editors. Encyclopedia of Machine Learning. Boston, MA: Springer US; 2010. p. 639–639.
+
+[13] Lance GN, Williams WT. Computer programs for hierarchical polythetic classification (“similarity analyses”). The Computer Journal. 1966;9:60–4.
+
+[14] Cantrell CD. Modern mathematical methods for physicists and engineers. Cambridge: Cambridge University Press; 2000.
+
+[15] Dice LR. Measures of the amount of ecologic association between species. Ecology. 1945;26:297–302.
+
+[16] Duda R, Hart P, G.Stork D. Pattern classification. In: Wiley Interscience. 2001.
+
+[17] Mahalanobis PC. On the generalized distance in statistics. Proceedings of the National Institute of Sciences (Calcutta). 1936;2:49–55.
+
+[18] Kraskov A, Stögbauer H, Grassberger P. Estimating mutual information. Phys Rev E. 2004;69:066138.
+
+[19] Reshef DN, Reshef YA, Finucane HK, Grossman SR, McVean G, Turnbaugh PJ, et al. Detecting novel associations in large data sets. Science. 2011;334:1518–24.
+
+[20] Friedman J, Hastie T, Tibshirani R. Regularization paths for generalized linear models via coordinate descent. J Stat Softw. 2010;33:1–22.
+
+[21] Huang JC, Babak T, Corson TW, Chua G, Khan S, Gallie BL, et al. Using expression profiling data to identify human microRNA targets. Nat Methods. 2007;4:1045–9.
+
+[22] Quinn TP, Richardson MF, Lovell D, Crowley TM. propr: An R-package for identifying proportionally abundant features using compositional data analysis. Sci Rep. 2017;7:16252.
+
+[23] Maathuis MH, Kalisch M, Bühlmann P. Estimating high-dimensional intervention effects from observational data. The Annals of Statistics. 2009;37:3133–64.
+
+[24] Agarwal V, Bell GW, Nam JW, Bartel DP. Predicting effective microRNA target sites in mammalian mRNAs. Elife. 2015;4:e05005.
+
+[25] Li JH, Liu S, Zhou H, Qu LH, Yang JH. starBase v2.0: decoding miRNA-ceRNA, miRNA-ncRNA and protein-RNA interaction networks from large-scale CLIP-Seq data. Nucleic Acids Res. 2014;42 Database issue:D92-97.
+
+[26] Huang H, Lin Y-C, Cui S, Huang Y, Tang Y, Xu J, et al. miRTarBase update 2022: an informative resource for experimentally validated miRNA-target interactions. Nucleic Acids Res. 2022;50:D222–30.
+
+[27] Karagkouni D, Paraskevopoulou MD, Chatzopoulos S, Vlachos IS, Tastsoglou S, Kanellos I, et al. DIANA-TarBase v8: a decade-long collection of experimentally supported miRNA-gene interactions. Nucleic Acids Res. 2018;46:D239–45.
+
+[28] Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, et al. miRSM: an R package to infer and analyse miRNA sponge modules in heterogeneous data. RNA Biol. 2021;18:2308–20.
+
+# Session information
+```{r}
+sessionInfo()
+```
