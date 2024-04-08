@@ -997,7 +997,7 @@ Weighted_rank_Scan <- function(miRExp, mRExp, sample_index){
 phit_generic <- function(x, y){
     
     mat <- cbind(x, y)
-    interin <- propr(mat, metric = "phi", select = colnames(mat))@matrix
+    interin <- propr(mat, metric = "phi")@matrix
     x.index <- seq(ncol(x))
     y.index <- seq(ncol(y)) + ncol(x)
     phit.value <- interin[y.index, x.index]
@@ -1039,7 +1039,7 @@ Phit_Scan <- function(miRExp, mRExp, sample_index){
 phis_generic <- function(x, y){
     
     mat <- cbind(x, y)
-    interin <- propr(mat, metric = "phs", select = colnames(mat))@matrix
+    interin <- propr(mat, metric = "phs")@matrix
     x.index <- seq(ncol(x))
     y.index <- seq(ncol(y)) + ncol(x)
     phis.value <- interin[y.index, x.index]
@@ -1081,7 +1081,7 @@ Phis_Scan <- function(miRExp, mRExp, sample_index){
 rhop_generic <- function(x, y){
     
     mat <- cbind(x, y)
-    interin <- propr(mat, metric = "rho", select = colnames(mat))@matrix
+    interin <- propr(mat, metric = "rho")@matrix
     x.index <- seq(ncol(x))
     y.index <- seq(ncol(y)) + ncol(x)
     rhop.value <- interin[y.index, x.index]
