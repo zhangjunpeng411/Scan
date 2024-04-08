@@ -1483,7 +1483,7 @@ Scan.interp <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA", "pracma"), .export = c("Phis_Scan", "Phis", "phis_generic", "phis", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA", "pracma"), .export = c("Phis_Scan", "Phis", "phis_generic", "querydata", "matrixzscore")) %dopar% {
              Phis_Scan(miRExp, mRExp, i)
         }     
     
@@ -1497,7 +1497,7 @@ Scan.interp <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA"), .export = c("Rhop_Scan", "Rhop", "rhop_generic", "perb", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "WGCNA"), .export = c("Rhop_Scan", "Rhop", "rhop_generic", "querydata", "matrixzscore")) %dopar% {
             Rhop_Scan(miRExp, mRExp, i)
         }     
     

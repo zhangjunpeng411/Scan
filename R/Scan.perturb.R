@@ -1179,7 +1179,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phis", "phis_generic", "phis", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr", "pracma"), .export = c("Phis", "phis_generic", "querydata", "matrixzscore")) %dopar% {
             Phis(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
@@ -1194,7 +1194,7 @@ Scan.perturb <- function(miRExp, mRExp,
         cl <- makeCluster(num.cores)
         registerDoParallel(cl)  
         
-	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr"), .export = c("Rhop", "rhop_generic", "perb", "querydata", "matrixzscore")) %dopar% {
+	res.single <- foreach(i = seq(nrow(miRExp)), .packages = c("igraph", "propr"), .export = c("Rhop", "rhop_generic", "querydata", "matrixzscore")) %dopar% {
             Rhop(miRExp[-i, ], mRExp[-i, ], p.value = p.value)
         }     
     
