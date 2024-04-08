@@ -40,8 +40,9 @@ source("R/Case_study.R")
 For scanning sample-specific miRNA regulation, users should prepare matched miRNA and mRNA expression data and putative miRNA-target interactions (optional). Paste the datasets and our source file (**Scan.interp.R** and **Scan.perturb.R**) into a single folder (set the folder as the directory of R environment), users can use the following scripts to scan sample-specific miRNA regulation. For convenience, our bulk and single-cell transcriptomics datasets prepared for users are from [here](https://drive.google.com/file/d/1MgLNYcALNi4nR4S9MiYTGyUCekbGwM_k/view?usp=drive_link).
 
 ```{r echo=FALSE, results='hide', message=FALSE}
-# Load K562 dataset
+# Load K562 dataset and source script
 load("Data/K562_19_single-cell_matched_miR_mR.RData")
+source("R/Scan.interp.R")
 
 # Load packages
 library(pracma)
@@ -85,7 +86,6 @@ mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), 
 mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
 
 # No prior information
-source("R/Scan.interp.R")
 Scan.interp_Pearson_timestart <- Sys.time()
 Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.interp_Pearson_timeend <- Sys.time()
