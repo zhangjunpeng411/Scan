@@ -1137,7 +1137,7 @@ Scan.interp <- function(miRExp, mRExp,
                     pcmethod = c("stable", "original", "stable.fast"), 
 		    alpha = 0.01,
 		    p.value = 0.05,
-		    num.cores = 32){
+		    num.cores = 6){
     
     nsamples <- nrow(miRExp)
     
@@ -1543,7 +1543,7 @@ Sim.network <- function(net){
 ## Function for calculating similarity matrix between two list of networks (parallel version)
 # net: List object, list of network
 # Output: Sim is a similarity matrix between two list of networks
-Sim.network_parallel <- function(net, num.cores = 32){
+Sim.network_parallel <- function(net, num.cores = 6){
     
     net1 <- net
     net2 <- net
