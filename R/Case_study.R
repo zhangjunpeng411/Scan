@@ -42,10 +42,12 @@ library(pcaPP)
     mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), function(i) mean(mRNA_scRNA_norm_zero[, i])))
     mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
 
+## Load utility functions for scanning sample-specific miRNA regulation using a linear interpolation strategy.
+source("R/Scan.interp.R")
 
 set.seed(123)
-ENCORI <- read.csv("ENCORI.csv", header = TRUE, sep = ",")
-TargetScan <- read.csv("TargetScan_8.0.csv", header = TRUE, sep = ",")
+ENCORI <- read.csv("Data/ENCORI.csv", header = TRUE, sep = ",")
+TargetScan <- read.csv("Data/TargetScan_8.0.csv", header = TRUE, sep = ",")
 ENCORI_graph <-make_graph(c(t(ENCORI)), directed = FALSE)
 TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 
@@ -53,132 +55,132 @@ TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 Scan.interp_Pearson_timestart <- Sys.time()
 Scan.interp_Pearson_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.interp_Pearson_timeend <- Sys.time()
-Scan.interp_Pearson_runningtime_NULL <- Scan.interp_Pearson_timeend - Scan.interp_Pearson_timestart
+Scan.interp_Pearson_runningtime_NULL <- as.numeric(difftime(Scan.interp_Pearson_timeend, Scan.interp_Pearson_timestart, units = "secs"))
 
 Scan.interp_Spearman_timestart <- Sys.time()
 Scan.interp_Spearman_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Spearman")
 Scan.interp_Spearman_timeend <- Sys.time()
-Scan.interp_Spearman_runningtime_NULL <- Scan.interp_Spearman_timeend - Scan.interp_Spearman_timestart
+Scan.interp_Spearman_runningtime_NULL <- as.numeric(difftime(Scan.interp_Spearman_timeend, Scan.interp_Spearman_timestart, units = "secs"))
 
 Scan.interp_Kendall_timestart <- Sys.time()
 Scan.interp_Kendall_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Kendall")
 Scan.interp_Kendall_timeend <- Sys.time()
-Scan.interp_Kendall_runningtime_NULL <- Scan.interp_Kendall_timeend - Scan.interp_Kendall_timestart
+Scan.interp_Kendall_runningtime_NULL <- as.numeric(difftime(Scan.interp_Kendall_timeend, Scan.interp_Kendall_timestart, units = "secs"))
 
 Scan.interp_Dcor_timestart <- Sys.time()
 Scan.interp_Dcor_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Dcor")
 Scan.interp_Dcor_timeend <- Sys.time()
-Scan.interp_Dcor_runningtime_NULL <- Scan.interp_Dcor_timeend - Scan.interp_Dcor_timestart
+Scan.interp_Dcor_runningtime_NULL <- as.numeric(difftime(Scan.interp_Dcor_timeend, Scan.interp_Dcor_timestart, units = "secs"))
 
 Scan.interp_RDC_timestart <- Sys.time()
 Scan.interp_RDC_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "RDC")
 Scan.interp_RDC_timeend <- Sys.time()
-Scan.interp_RDC_runningtime_NULL <- Scan.interp_RDC_timeend - Scan.interp_RDC_timestart
+Scan.interp_RDC_runningtime_NULL <- as.numeric(difftime(Scan.interp_RDC_timeend, Scan.interp_RDC_timestart, units = "secs"))
 
 Scan.interp_Hoeffd_timestart <- Sys.time()
 Scan.interp_Hoeffd_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Hoeffd")
 Scan.interp_Hoeffd_timeend <- Sys.time()
-Scan.interp_Hoeffd_runningtime_NULL <- Scan.interp_Hoeffd_timeend - Scan.interp_Hoeffd_timestart
+Scan.interp_Hoeffd_runningtime_NULL <- as.numeric(difftime(Scan.interp_Hoeffd_timeend, Scan.interp_Hoeffd_timestart, units = "secs"))
 
 Scan.interp_Zscore_timestart <- Sys.time()
 Scan.interp_Zscore_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Zscore")
 Scan.interp_Zscore_timeend <- Sys.time()
-Scan.interp_Zscore_runningtime_NULL <- Scan.interp_Zscore_timeend - Scan.interp_Zscore_timestart
+Scan.interp_Zscore_runningtime_NULL <- as.numeric(difftime(Scan.interp_Zscore_timeend, Scan.interp_Zscore_timestart, units = "secs"))
 
 Scan.interp_Biweight_timestart <- Sys.time()
 Scan.interp_Biweight_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Biweight")
 Scan.interp_Biweight_timeend <- Sys.time()
-Scan.interp_Biweight_runningtime_NULL <- Scan.interp_Biweight_timeend - Scan.interp_Biweight_timestart
+Scan.interp_Biweight_runningtime_NULL <- as.numeric(difftime(Scan.interp_Biweight_timeend, Scan.interp_Biweight_timestart, units = "secs"))
 
 Scan.interp_Weighted_rank_timestart <- Sys.time()
 Scan.interp_Weighted_rank_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Weighted_rank")
 Scan.interp_Weighted_rank_timeend <- Sys.time()
-Scan.interp_Weighted_rank_runningtime_NULL <- Scan.interp_Weighted_rank_timeend - Scan.interp_Weighted_rank_timestart
+Scan.interp_Weighted_rank_runningtime_NULL <- as.numeric(difftime(Scan.interp_Weighted_rank_timeend, Scan.interp_Weighted_rank_timestart, units = "secs"))
 
 Scan.interp_Cosine_timestart <- Sys.time()
 Scan.interp_Cosine_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Cosine")
 Scan.interp_Cosine_timeend <- Sys.time()
-Scan.interp_Cosine_runningtime_NULL <- Scan.interp_Cosine_timeend - Scan.interp_Cosine_timestart
+Scan.interp_Cosine_runningtime_NULL <- as.numeric(difftime(Scan.interp_Cosine_timeend, Scan.interp_Cosine_timestart, units = "secs"))
 
 Scan.interp_Euclidean_timestart <- Sys.time()
 Scan.interp_Euclidean_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Euclidean")
 Scan.interp_Euclidean_timeend <- Sys.time()
-Scan.interp_Euclidean_runningtime_NULL <- Scan.interp_Euclidean_timeend - Scan.interp_Euclidean_timestart
+Scan.interp_Euclidean_runningtime_NULL <- as.numeric(difftime(Scan.interp_Euclidean_timeend, Scan.interp_Euclidean_timestart, units = "secs"))
 
 Scan.interp_Manhattan_timestart <- Sys.time()
 Scan.interp_Manhattan_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Manhattan")
 Scan.interp_Manhattan_timeend <- Sys.time()
-Scan.interp_Manhattan_runningtime_NULL <- Scan.interp_Manhattan_timeend - Scan.interp_Manhattan_timestart
+Scan.interp_Manhattan_runningtime_NULL <- as.numeric(difftime(Scan.interp_Manhattan_timeend, Scan.interp_Manhattan_timestart, units = "secs"))
 
 Scan.interp_Canberra_timestart <- Sys.time()
 Scan.interp_Canberra_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Canberra")
 Scan.interp_Canberra_timeend <- Sys.time()
-Scan.interp_Canberra_runningtime_NULL <- Scan.interp_Canberra_timeend - Scan.interp_Canberra_timestart
+Scan.interp_Canberra_runningtime_NULL <- as.numeric(difftime(Scan.interp_Canberra_timeend, Scan.interp_Canberra_timestart, units = "secs"))
 
 Scan.interp_Chebyshev_timestart <- Sys.time()
 Scan.interp_Chebyshev_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Chebyshev")
 Scan.interp_Chebyshev_timeend <- Sys.time()
-Scan.interp_Chebyshev_runningtime_NULL <- Scan.interp_Chebyshev_timeend - Scan.interp_Chebyshev_timestart
+Scan.interp_Chebyshev_runningtime_NULL <- as.numeric(difftime(Scan.interp_Chebyshev_timeend, Scan.interp_Chebyshev_timestart, units = "secs"))
 
 Scan.interp_Dice_timestart <- Sys.time()
 Scan.interp_Dice_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Dice")
 Scan.interp_Dice_timeend <- Sys.time()
-Scan.interp_Dice_runningtime_NULL <- Scan.interp_Dice_timeend - Scan.interp_Dice_timestart
+Scan.interp_Dice_runningtime_NULL <- as.numeric(difftime(Scan.interp_Dice_timeend, Scan.interp_Dice_timestart, units = "secs"))
 
 Scan.interp_Jaccard_timestart <- Sys.time()
 Scan.interp_Jaccard_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Jaccard")
 Scan.interp_Jaccard_timeend <- Sys.time()
-Scan.interp_Jaccard_runningtime_NULL <- Scan.interp_Jaccard_timeend - Scan.interp_Jaccard_timestart
+Scan.interp_Jaccard_runningtime_NULL <- as.numeric(difftime(Scan.interp_Jaccard_timeend, Scan.interp_Jaccard_timestart, units = "secs"))
 
 Scan.interp_Mahalanobis_timestart <- Sys.time()
 Scan.interp_Mahalanobis_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Mahalanobis")
 Scan.interp_Mahalanobis_timeend <- Sys.time()
-Scan.interp_Mahalanobis_runningtime_NULL <- Scan.interp_Mahalanobis_timeend - Scan.interp_Mahalanobis_timestart
+Scan.interp_Mahalanobis_runningtime_NULL <- as.numeric(difftime(Scan.interp_Mahalanobis_timeend, Scan.interp_Mahalanobis_timestart, units = "secs"))
 
 Scan.interp_MI_timestart <- Sys.time()
 Scan.interp_MI_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MI")
 Scan.interp_MI_timeend <- Sys.time()
-Scan.interp_MI_runningtime_NULL <- Scan.interp_MI_timeend - Scan.interp_MI_timestart
+Scan.interp_MI_runningtime_NULL <- as.numeric(difftime(Scan.interp_MI_timeend, Scan.interp_MI_timestart, units = "secs"))
 
 Scan.interp_MIC_timestart <- Sys.time()
 Scan.interp_MIC_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MIC")
 Scan.interp_MIC_timeend <- Sys.time()
-Scan.interp_MIC_runningtime_NULL <- Scan.interp_MIC_timeend - Scan.interp_MIC_timestart
+Scan.interp_MIC_runningtime_NULL <- as.numeric(difftime(Scan.interp_MIC_timeend, Scan.interp_MIC_timestart, units = "secs"))
 
 Scan.interp_Lasso_timestart <- Sys.time()
 Scan.interp_Lasso_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Lasso")
 Scan.interp_Lasso_timeend <- Sys.time()
-Scan.interp_Lasso_runningtime_NULL <- Scan.interp_Lasso_timeend - Scan.interp_Lasso_timestart
+Scan.interp_Lasso_runningtime_NULL <- as.numeric(difftime(Scan.interp_Lasso_timeend, Scan.interp_Lasso_timestart, units = "secs"))
 
 Scan.interp_Elastic_timestart <- Sys.time()
 Scan.interp_Elastic_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Elastic")
 Scan.interp_Elastic_timeend <- Sys.time()
-Scan.interp_Elastic_runningtime_NULL <- Scan.interp_Elastic_timeend - Scan.interp_Elastic_timestart
+Scan.interp_Elastic_runningtime_NULL <- as.numeric(difftime(Scan.interp_Elastic_timeend, Scan.interp_Elastic_timestart, units = "secs"))
 
 Scan.interp_Ridge_timestart <- Sys.time()
 Scan.interp_Ridge_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Ridge")
 Scan.interp_Ridge_timeend <- Sys.time()
-Scan.interp_Ridge_runningtime_NULL <- Scan.interp_Ridge_timeend - Scan.interp_Ridge_timestart
+Scan.interp_Ridge_runningtime_NULL <- as.numeric(difftime(Scan.interp_Ridge_timeend, Scan.interp_Ridge_timestart, units = "secs"))
 
 Scan.interp_Phit_timestart <- Sys.time()
 Scan.interp_Phit_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phit")
 Scan.interp_Phit_timeend <- Sys.time()
-Scan.interp_Phit_runningtime_NULL <- Scan.interp_Phit_timeend - Scan.interp_Phit_timestart
+Scan.interp_Phit_runningtime_NULL <- as.numeric(difftime(Scan.interp_Phit_timeend, Scan.interp_Phit_timestart, units = "secs"))
 
 Scan.interp_Phis_timestart <- Sys.time()
 Scan.interp_Phis_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phis")
 Scan.interp_Phis_timeend <- Sys.time()
-Scan.interp_Phis_runningtime_NULL <- Scan.interp_Phis_timeend - Scan.interp_Phis_timestart
+Scan.interp_Phis_runningtime_NULL <- as.numeric(difftime(Scan.interp_Phis_timeend, Scan.interp_Phis_timestart, units = "secs"))
 
 Scan.interp_Rhop_timestart <- Sys.time()
 Scan.interp_Rhop_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Rhop")
 Scan.interp_Rhop_timeend <- Sys.time()
-Scan.interp_Rhop_runningtime_NULL <- Scan.interp_Rhop_timeend - Scan.interp_Rhop_timestart
+Scan.interp_Rhop_runningtime_NULL <- as.numeric(difftime(Scan.interp_Rhop_timeend, Scan.interp_Rhop_timestart, units = "secs"))
 
 Scan.interp_IDA_timestart <- Sys.time()
 Scan.interp_IDA_NULL_res <- Scan.interp(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "IDA", pcmethod = "stable")
 Scan.interp_IDA_timeend <- Sys.time()
-Scan.interp_IDA_runningtime_NULL <- Scan.interp_IDA_timeend - Scan.interp_IDA_timestart
+Scan.interp_IDA_runningtime_NULL <- as.numeric(difftime(Scan.interp_IDA_timeend, Scan.interp_IDA_timestart, units = "secs"))
 
 
 # The prior information is TargetScan
@@ -345,7 +347,7 @@ Scan.interp_IDA_ENCORI_res_num <- unlist(lapply(seq(Scan.interp_IDA_ENCORI_res),
 
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
-miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
 miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
 
 Scan.interp_Pearson_NULL_res_validated <- lapply(seq(Scan.interp_Pearson_NULL_res), function(i) as_data_frame(Scan.interp_Pearson_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
@@ -685,142 +687,145 @@ library(gtools)
 library(pbapply)
 library(pcaPP)
 
+## Load utility functions for scanning sample-specific miRNA regulation using a linear interpolation strategy.
+source("R/Scan.interp.R")
+
 set.seed(123)
-ENCORI <- read.csv("ENCORI.csv", header = TRUE, sep = ",")
-TargetScan <- read.csv("TargetScan_8.0.csv", header = TRUE, sep = ",")
+ENCORI <- read.csv("Data/ENCORI.csv", header = TRUE, sep = ",")
+TargetScan <- read.csv("Data/TargetScan_8.0.csv", header = TRUE, sep = ",")
 ENCORI_graph <-make_graph(c(t(ENCORI)), directed = FALSE)
 TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 
 # No prior information
 Scan.interp_Pearson_timestart_BRCA <- Sys.time()
-Scan.interp_Pearson_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Pearson")
+Scan.interp_Pearson_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Pearson")
 Scan.interp_Pearson_timeend_BRCA <- Sys.time()
-Scan.interp_Pearson_runningtime_NULL_BRCA <- Scan.interp_Pearson_timeend_BRCA - Scan.interp_Pearson_timestart_BRCA
+Scan.interp_Pearson_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Pearson_timeend_BRCA, Scan.interp_Pearson_timestart_BRCA, units = "secs"))
 
 Scan.interp_Spearman_timestart_BRCA <- Sys.time()
-Scan.interp_Spearman_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Spearman")
+Scan.interp_Spearman_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Spearman")
 Scan.interp_Spearman_timeend_BRCA <- Sys.time()
-Scan.interp_Spearman_runningtime_NULL_BRCA <- Scan.interp_Spearman_timeend_BRCA - Scan.interp_Spearman_timestart_BRCA
+Scan.interp_Spearman_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Spearman_timeend_BRCA, Scan.interp_Spearman_timestart_BRCA, units = "secs"))
 
 Scan.interp_Kendall_timestart_BRCA <- Sys.time()
-Scan.interp_Kendall_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Kendall")
+Scan.interp_Kendall_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Kendall")
 Scan.interp_Kendall_timeend_BRCA <- Sys.time()
-Scan.interp_Kendall_runningtime_NULL_BRCA <- Scan.interp_Kendall_timeend_BRCA - Scan.interp_Kendall_timestart_BRCA
+Scan.interp_Kendall_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Kendall_timeend_BRCA, Scan.interp_Kendall_timestart_BRCA, units = "secs"))
 
 Scan.interp_Dcor_timestart_BRCA <- Sys.time()
-Scan.interp_Dcor_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Dcor")
+Scan.interp_Dcor_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Dcor")
 Scan.interp_Dcor_timeend_BRCA <- Sys.time()
-Scan.interp_Dcor_runningtime_NULL_BRCA <- Scan.interp_Dcor_timeend_BRCA - Scan.interp_Dcor_timestart_BRCA
+Scan.interp_Dcor_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Dcor_timeend_BRCA, Scan.interp_Dcor_timestart_BRCA, units = "secs"))
 
 Scan.interp_RDC_timestart_BRCA <- Sys.time()
-Scan.interp_RDC_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "RDC")
+Scan.interp_RDC_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "RDC")
 Scan.interp_RDC_timeend_BRCA <- Sys.time()
-Scan.interp_RDC_runningtime_NULL_BRCA <- Scan.interp_RDC_timeend_BRCA - Scan.interp_RDC_timestart_BRCA
+Scan.interp_RDC_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_RDC_timeend_BRCA, Scan.interp_RDC_timestart_BRCA, units = "secs"))
 
 Scan.interp_Hoeffd_timestart_BRCA <- Sys.time()
-Scan.interp_Hoeffd_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Hoeffd")
+Scan.interp_Hoeffd_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Hoeffd")
 Scan.interp_Hoeffd_timeend_BRCA <- Sys.time()
-Scan.interp_Hoeffd_runningtime_NULL_BRCA <- Scan.interp_Hoeffd_timeend_BRCA - Scan.interp_Hoeffd_timestart_BRCA
+Scan.interp_Hoeffd_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Hoeffd_timeend_BRCA, Scan.interp_Hoeffd_timestart_BRCA, units = "secs"))
 
 Scan.interp_Zscore_timestart_BRCA <- Sys.time()
-Scan.interp_Zscore_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Zscore")
+Scan.interp_Zscore_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Zscore")
 Scan.interp_Zscore_timeend_BRCA <- Sys.time()
-Scan.interp_Zscore_runningtime_NULL_BRCA <- Scan.interp_Zscore_timeend_BRCA - Scan.interp_Zscore_timestart_BRCA
+Scan.interp_Zscore_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Zscore_timeend_BRCA, Scan.interp_Zscore_timestart_BRCA, units = "secs"))
 
 Scan.interp_Biweight_timestart_BRCA <- Sys.time()
-Scan.interp_Biweight_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Biweight")
+Scan.interp_Biweight_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Biweight")
 Scan.interp_Biweight_timeend_BRCA <- Sys.time()
-Scan.interp_Biweight_runningtime_NULL_BRCA <- Scan.interp_Biweight_timeend_BRCA - Scan.interp_Biweight_timestart_BRCA
+Scan.interp_Biweight_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Biweight_timeend_BRCA, Scan.interp_Biweight_timestart_BRCA, units = "secs"))
 
 Scan.interp_Weighted_rank_timestart_BRCA <- Sys.time()
-Scan.interp_Weighted_rank_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Weighted_rank")
+Scan.interp_Weighted_rank_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Weighted_rank")
 Scan.interp_Weighted_rank_timeend_BRCA <- Sys.time()
-Scan.interp_Weighted_rank_runningtime_NULL_BRCA <- Scan.interp_Weighted_rank_timeend_BRCA - Scan.interp_Weighted_rank_timestart_BRCA
+Scan.interp_Weighted_rank_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Weighted_rank_timeend_BRCA, Scan.interp_Weighted_rank_timestart_BRCA, units = "secs"))
 
 Scan.interp_Cosine_timestart_BRCA <- Sys.time()
-Scan.interp_Cosine_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Cosine")
+Scan.interp_Cosine_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Cosine")
 Scan.interp_Cosine_timeend_BRCA <- Sys.time()
-Scan.interp_Cosine_runningtime_NULL_BRCA <- Scan.interp_Cosine_timeend_BRCA - Scan.interp_Cosine_timestart_BRCA
+Scan.interp_Cosine_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Cosine_timeend_BRCA, Scan.interp_Cosine_timestart_BRCA, units = "secs"))
 
 Scan.interp_Euclidean_timestart_BRCA <- Sys.time()
-Scan.interp_Euclidean_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Euclidean")
+Scan.interp_Euclidean_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Euclidean")
 Scan.interp_Euclidean_timeend_BRCA <- Sys.time()
-Scan.interp_Euclidean_runningtime_NULL_BRCA <- Scan.interp_Euclidean_timeend_BRCA - Scan.interp_Euclidean_timestart_BRCA
+Scan.interp_Euclidean_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Euclidean_timeend_BRCA, Scan.interp_Euclidean_timestart_BRCA, units = "secs"))
 
 Scan.interp_Manhattan_timestart_BRCA <- Sys.time()
-Scan.interp_Manhattan_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Manhattan")
+Scan.interp_Manhattan_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Manhattan")
 Scan.interp_Manhattan_timeend_BRCA <- Sys.time()
-Scan.interp_Manhattan_runningtime_NULL_BRCA <- Scan.interp_Manhattan_timeend_BRCA - Scan.interp_Manhattan_timestart_BRCA
+Scan.interp_Manhattan_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Manhattan_timeend_BRCA, Scan.interp_Manhattan_timestart_BRCA, units = "secs"))
 
 Scan.interp_Canberra_timestart_BRCA <- Sys.time()
-Scan.interp_Canberra_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Canberra")
+Scan.interp_Canberra_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Canberra")
 Scan.interp_Canberra_timeend_BRCA <- Sys.time()
-Scan.interp_Canberra_runningtime_NULL_BRCA <- Scan.interp_Canberra_timeend_BRCA - Scan.interp_Canberra_timestart_BRCA
+Scan.interp_Canberra_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Canberra_timeend_BRCA, Scan.interp_Canberra_timestart_BRCA, units = "secs"))
 
 Scan.interp_Chebyshev_timestart_BRCA <- Sys.time()
-Scan.interp_Chebyshev_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Chebyshev")
+Scan.interp_Chebyshev_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Chebyshev")
 Scan.interp_Chebyshev_timeend_BRCA <- Sys.time()
-Scan.interp_Chebyshev_runningtime_NULL_BRCA <- Scan.interp_Chebyshev_timeend_BRCA - Scan.interp_Chebyshev_timestart_BRCA
+Scan.interp_Chebyshev_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Chebyshev_timeend_BRCA, Scan.interp_Chebyshev_timestart_BRCA, units = "secs"))
 
 Scan.interp_Dice_timestart_BRCA <- Sys.time()
-Scan.interp_Dice_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Dice")
+Scan.interp_Dice_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Dice")
 Scan.interp_Dice_timeend_BRCA <- Sys.time()
-Scan.interp_Dice_runningtime_NULL_BRCA <- Scan.interp_Dice_timeend_BRCA - Scan.interp_Dice_timestart_BRCA
+Scan.interp_Dice_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Dice_timeend_BRCA, Scan.interp_Dice_timestart_BRCA, units = "secs"))
 
 Scan.interp_Jaccard_timestart_BRCA <- Sys.time()
-Scan.interp_Jaccard_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Jaccard")
+Scan.interp_Jaccard_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Jaccard")
 Scan.interp_Jaccard_timeend_BRCA <- Sys.time()
-Scan.interp_Jaccard_runningtime_NULL_BRCA <- Scan.interp_Jaccard_timeend_BRCA - Scan.interp_Jaccard_timestart_BRCA
+Scan.interp_Jaccard_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Jaccard_timeend_BRCA, Scan.interp_Jaccard_timestart_BRCA, units = "secs"))
 
 Scan.interp_Mahalanobis_timestart_BRCA <- Sys.time()
-Scan.interp_Mahalanobis_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Mahalanobis")
+Scan.interp_Mahalanobis_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Mahalanobis")
 Scan.interp_Mahalanobis_timeend_BRCA <- Sys.time()
-Scan.interp_Mahalanobis_runningtime_NULL_BRCA <- Scan.interp_Mahalanobis_timeend_BRCA - Scan.interp_Mahalanobis_timestart_BRCA
+Scan.interp_Mahalanobis_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Mahalanobis_timeend_BRCA, Scan.interp_Mahalanobis_timestart_BRCA, units = "secs"))
 
 Scan.interp_MI_timestart_BRCA <- Sys.time()
-Scan.interp_MI_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "MI")
+Scan.interp_MI_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "MI")
 Scan.interp_MI_timeend_BRCA <- Sys.time()
-Scan.interp_MI_runningtime_NULL_BRCA <- Scan.interp_MI_timeend_BRCA - Scan.interp_MI_timestart_BRCA
+Scan.interp_MI_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_MI_timeend_BRCA, Scan.interp_MI_timestart_BRCA, units = "secs"))
 
 Scan.interp_MIC_timestart_BRCA <- Sys.time()
-Scan.interp_MIC_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "MIC")
+Scan.interp_MIC_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "MIC")
 Scan.interp_MIC_timeend_BRCA <- Sys.time()
-Scan.interp_MIC_runningtime_NULL_BRCA <- Scan.interp_MIC_timeend_BRCA - Scan.interp_MIC_timestart_BRCA
+Scan.interp_MIC_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_MIC_timeend_BRCA, Scan.interp_MIC_timestart_BRCA, units = "secs"))
 
 Scan.interp_Lasso_timestart_BRCA <- Sys.time()
-Scan.interp_Lasso_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Lasso")
+Scan.interp_Lasso_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Lasso")
 Scan.interp_Lasso_timeend_BRCA <- Sys.time()
-Scan.interp_Lasso_runningtime_NULL_BRCA <- Scan.interp_Lasso_timeend_BRCA - Scan.interp_Lasso_timestart_BRCA
+Scan.interp_Lasso_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Lasso_timeend_BRCA, Scan.interp_Lasso_timestart_BRCA, units = "secs"))
 
 Scan.interp_Elastic_timestart_BRCA <- Sys.time()
-Scan.interp_Elastic_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Elastic")
+Scan.interp_Elastic_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Elastic")
 Scan.interp_Elastic_timeend_BRCA <- Sys.time()
-Scan.interp_Elastic_runningtime_NULL_BRCA <- Scan.interp_Elastic_timeend_BRCA - Scan.interp_Elastic_timestart_BRCA
+Scan.interp_Elastic_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Elastic_timeend_BRCA, Scan.interp_Elastic_timestart_BRCA, units = "secs"))
 
 Scan.interp_Ridge_timestart_BRCA <- Sys.time()
-Scan.interp_Ridge_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Ridge")
+Scan.interp_Ridge_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Ridge")
 Scan.interp_Ridge_timeend_BRCA <- Sys.time()
-Scan.interp_Ridge_runningtime_NULL_BRCA <- Scan.interp_Ridge_timeend_BRCA - Scan.interp_Ridge_timestart_BRCA
+Scan.interp_Ridge_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Ridge_timeend_BRCA, Scan.interp_Ridge_timestart_BRCA, units = "secs"))
 
 Scan.interp_Phit_timestart_BRCA <- Sys.time()
-Scan.interp_Phit_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Phit")
+Scan.interp_Phit_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Phit")
 Scan.interp_Phit_timeend_BRCA <- Sys.time()
-Scan.interp_Phit_runningtime_NULL_BRCA <- Scan.interp_Phit_timeend_BRCA - Scan.interp_Phit_timestart_BRCA
+Scan.interp_Phit_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Phit_timeend_BRCA, Scan.interp_Phit_timestart_BRCA, units = "secs"))
 
 Scan.interp_Phis_timestart_BRCA <- Sys.time()
-Scan.interp_Phis_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Phis")
+Scan.interp_Phis_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Phis")
 Scan.interp_Phis_timeend_BRCA <- Sys.time()
-Scan.interp_Phis_runningtime_NULL_BRCA <- Scan.interp_Phis_timeend_BRCA - Scan.interp_Phis_timestart_BRCA
+Scan.interp_Phis_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Phis_timeend_BRCA, Scan.interp_Phis_timestart_BRCA, units = "secs"))
 
 Scan.interp_Rhop_timestart_BRCA <- Sys.time()
-Scan.interp_Rhop_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Rhop")
+Scan.interp_Rhop_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Rhop")
 Scan.interp_Rhop_timeend_BRCA <- Sys.time()
-Scan.interp_Rhop_runningtime_NULL_BRCA <- Scan.interp_Rhop_timeend_BRCA - Scan.interp_Rhop_timestart_BRCA
+Scan.interp_Rhop_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_Rhop_timeend_BRCA, Scan.interp_Rhop_timestart_BRCA, units = "secs"))
 
 Scan.interp_IDA_timestart_BRCA <- Sys.time()
-Scan.interp_IDA_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "IDA", pcmethod = "stable")
+Scan.interp_IDA_NULL_res_BRCA <- Scan.interp(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "IDA", pcmethod = "stable")
 Scan.interp_IDA_timeend_BRCA <- Sys.time()
-Scan.interp_IDA_runningtime_NULL_BRCA <- Scan.interp_IDA_timeend_BRCA - Scan.interp_IDA_timestart_BRCA
+Scan.interp_IDA_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.interp_IDA_timeend_BRCA, Scan.interp_IDA_timestart_BRCA, units = "secs"))
 
 # The prior information is TargetScan
 Scan.interp_Pearson_TargetScan_res_BRCA <- lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) Scan.interp_Pearson_NULL_res_BRCA[[i]] %s% TargetScan_graph)
@@ -984,7 +989,7 @@ Scan.interp_IDA_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.interp_IDA_Tar
 Scan.interp_IDA_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.interp_IDA_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.interp_IDA_ENCORI_res_BRCA[[i]] ))))
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
-miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
 miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
 
 Scan.interp_Pearson_NULL_res_BRCA_validated <- lapply(seq(Scan.interp_Pearson_NULL_res_BRCA), function(i) as_data_frame(Scan.interp_Pearson_NULL_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
@@ -1348,9 +1353,12 @@ library(pcaPP)
     mRNA_scRNA_norm_mean_update <- unlist(lapply(seq(dim(mRNA_scRNA_norm_zero)[2]), function(i) mean(mRNA_scRNA_norm_zero[, i])))
     mRNA_scRNA_norm_filter <- mRNA_scRNA_norm_zero[, which(mRNA_scRNA_norm_mean_update > median(mRNA_scRNA_norm_mean_update))]
 
+## Load utility functions for scanning sample-specific miRNA regulation using a statistical perturbation strategy.
+source("R/Scan.perturb.R")
+
 set.seed(123)
-ENCORI <- read.csv("ENCORI.csv", header = TRUE, sep = ",")
-TargetScan <- read.csv("TargetScan_8.0.csv", header = TRUE, sep = ",")
+ENCORI <- read.csv("Data/ENCORI.csv", header = TRUE, sep = ",")
+TargetScan <- read.csv("Data/TargetScan_8.0.csv", header = TRUE, sep = ",")
 ENCORI_graph <-make_graph(c(t(ENCORI)), directed = FALSE)
 TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 
@@ -1358,132 +1366,132 @@ TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 Scan.perturb_Pearson_timestart <- Sys.time()
 Scan.perturb_Pearson_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Pearson")
 Scan.perturb_Pearson_timeend <- Sys.time()
-Scan.perturb_Pearson_runningtime_NULL <- Scan.perturb_Pearson_timeend - Scan.perturb_Pearson_timestart
+Scan.perturb_Pearson_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Pearson_timeend, Scan.perturb_Pearson_timestart, units = "secs"))
 
 Scan.perturb_Spearman_timestart <- Sys.time()
 Scan.perturb_Spearman_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Spearman")
 Scan.perturb_Spearman_timeend <- Sys.time()
-Scan.perturb_Spearman_runningtime_NULL <- Scan.perturb_Spearman_timeend - Scan.perturb_Spearman_timestart
+Scan.perturb_Spearman_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Spearman_timeend, Scan.perturb_Spearman_timestart, units = "secs"))
 
 Scan.perturb_Kendall_timestart <- Sys.time()
 Scan.perturb_Kendall_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Kendall")
 Scan.perturb_Kendall_timeend <- Sys.time()
-Scan.perturb_Kendall_runningtime_NULL <- Scan.perturb_Kendall_timeend - Scan.perturb_Kendall_timestart
+Scan.perturb_Kendall_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Kendall_timeend, Scan.perturb_Kendall_timestart, units = "secs"))
 
 Scan.perturb_Dcor_timestart <- Sys.time()
 Scan.perturb_Dcor_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Dcor")
 Scan.perturb_Dcor_timeend <- Sys.time()
-Scan.perturb_Dcor_runningtime_NULL <- Scan.perturb_Dcor_timeend - Scan.perturb_Dcor_timestart
+Scan.perturb_Dcor_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Dcor_timeend, Scan.perturb_Dcor_timestart, units = "secs"))
 
 Scan.perturb_RDC_timestart <- Sys.time()
 Scan.perturb_RDC_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "RDC")
 Scan.perturb_RDC_timeend <- Sys.time()
-Scan.perturb_RDC_runningtime_NULL <- Scan.perturb_RDC_timeend - Scan.perturb_RDC_timestart
+Scan.perturb_RDC_runningtime_NULL <- as.numeric(difftime(Scan.perturb_RDC_timeend, Scan.perturb_RDC_timestart, units = "secs"))
 
 Scan.perturb_Hoeffd_timestart <- Sys.time()
 Scan.perturb_Hoeffd_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Hoeffd")
 Scan.perturb_Hoeffd_timeend <- Sys.time()
-Scan.perturb_Hoeffd_runningtime_NULL <- Scan.perturb_Hoeffd_timeend - Scan.perturb_Hoeffd_timestart
+Scan.perturb_Hoeffd_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Hoeffd_timeend, Scan.perturb_Hoeffd_timestart, units = "secs"))
 
 Scan.perturb_Zscore_timestart <- Sys.time()
 Scan.perturb_Zscore_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Zscore")
 Scan.perturb_Zscore_timeend <- Sys.time()
-Scan.perturb_Zscore_runningtime_NULL <- Scan.perturb_Zscore_timeend - Scan.perturb_Zscore_timestart
+Scan.perturb_Zscore_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Zscore_timeend, Scan.perturb_Zscore_timestart, units = "secs"))
 
 Scan.perturb_Biweight_timestart <- Sys.time()
 Scan.perturb_Biweight_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Biweight")
 Scan.perturb_Biweight_timeend <- Sys.time()
-Scan.perturb_Biweight_runningtime_NULL <- Scan.perturb_Biweight_timeend - Scan.perturb_Biweight_timestart
+Scan.perturb_Biweight_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Biweight_timeend, Scan.perturb_Biweight_timestart, units = "secs"))
 
 Scan.perturb_Weighted_rank_timestart <- Sys.time()
 Scan.perturb_Weighted_rank_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Weighted_rank")
 Scan.perturb_Weighted_rank_timeend <- Sys.time()
-Scan.perturb_Weighted_rank_runningtime_NULL <- Scan.perturb_Weighted_rank_timeend - Scan.perturb_Weighted_rank_timestart
+Scan.perturb_Weighted_rank_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Weighted_rank_timeend, Scan.perturb_Weighted_rank_timestart, units = "secs"))
 
 Scan.perturb_Cosine_timestart <- Sys.time()
 Scan.perturb_Cosine_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Cosine")
 Scan.perturb_Cosine_timeend <- Sys.time()
-Scan.perturb_Cosine_runningtime_NULL <- Scan.perturb_Cosine_timeend - Scan.perturb_Cosine_timestart
+Scan.perturb_Cosine_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Cosine_timeend, Scan.perturb_Cosine_timestart, units = "secs"))
 
 Scan.perturb_Euclidean_timestart <- Sys.time()
 Scan.perturb_Euclidean_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Euclidean")
 Scan.perturb_Euclidean_timeend <- Sys.time()
-Scan.perturb_Euclidean_runningtime_NULL <- Scan.perturb_Euclidean_timeend - Scan.perturb_Euclidean_timestart
+Scan.perturb_Euclidean_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Euclidean_timeend, Scan.perturb_Euclidean_timestart, units = "secs"))
 
 Scan.perturb_Manhattan_timestart <- Sys.time()
 Scan.perturb_Manhattan_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Manhattan")
 Scan.perturb_Manhattan_timeend <- Sys.time()
-Scan.perturb_Manhattan_runningtime_NULL <- Scan.perturb_Manhattan_timeend - Scan.perturb_Manhattan_timestart
+Scan.perturb_Manhattan_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Manhattan_timeend, Scan.perturb_Manhattan_timestart, units = "secs"))
 
 Scan.perturb_Canberra_timestart <- Sys.time()
 Scan.perturb_Canberra_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Canberra")
 Scan.perturb_Canberra_timeend <- Sys.time()
-Scan.perturb_Canberra_runningtime_NULL <- Scan.perturb_Canberra_timeend - Scan.perturb_Canberra_timestart
+Scan.perturb_Canberra_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Canberra_timeend, Scan.perturb_Canberra_timestart, units = "secs"))
 
 Scan.perturb_Chebyshev_timestart <- Sys.time()
 Scan.perturb_Chebyshev_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Chebyshev")
 Scan.perturb_Chebyshev_timeend <- Sys.time()
-Scan.perturb_Chebyshev_runningtime_NULL <- Scan.perturb_Chebyshev_timeend - Scan.perturb_Chebyshev_timestart
+Scan.perturb_Chebyshev_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Chebyshev_timeend, Scan.perturb_Chebyshev_timestart, units = "secs"))
 
 Scan.perturb_Dice_timestart <- Sys.time()
 Scan.perturb_Dice_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Dice")
 Scan.perturb_Dice_timeend <- Sys.time()
-Scan.perturb_Dice_runningtime_NULL <- Scan.perturb_Dice_timeend - Scan.perturb_Dice_timestart
+Scan.perturb_Dice_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Dice_timeend, Scan.perturb_Dice_timestart, units = "secs"))
 
 Scan.perturb_Jaccard_timestart <- Sys.time()
 Scan.perturb_Jaccard_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Jaccard")
 Scan.perturb_Jaccard_timeend <- Sys.time()
-Scan.perturb_Jaccard_runningtime_NULL <- Scan.perturb_Jaccard_timeend - Scan.perturb_Jaccard_timestart
+Scan.perturb_Jaccard_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Jaccard_timeend, Scan.perturb_Jaccard_timestart, units = "secs"))
 
 Scan.perturb_Mahalanobis_timestart <- Sys.time()
 Scan.perturb_Mahalanobis_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Mahalanobis")
 Scan.perturb_Mahalanobis_timeend <- Sys.time()
-Scan.perturb_Mahalanobis_runningtime_NULL <- Scan.perturb_Mahalanobis_timeend - Scan.perturb_Mahalanobis_timestart
+Scan.perturb_Mahalanobis_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Mahalanobis_timeend, Scan.perturb_Mahalanobis_timestart, units = "secs"))
 
 Scan.perturb_MI_timestart <- Sys.time()
 Scan.perturb_MI_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MI")
 Scan.perturb_MI_timeend <- Sys.time()
-Scan.perturb_MI_runningtime_NULL <- Scan.perturb_MI_timeend - Scan.perturb_MI_timestart
+Scan.perturb_MI_runningtime_NULL <- as.numeric(difftime(Scan.perturb_MI_timeend, Scan.perturb_MI_timestart, units = "secs"))
 
 Scan.perturb_MIC_timestart <- Sys.time()
 Scan.perturb_MIC_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "MIC")
 Scan.perturb_MIC_timeend <- Sys.time()
-Scan.perturb_MIC_runningtime_NULL <- Scan.perturb_MIC_timeend - Scan.perturb_MIC_timestart
+Scan.perturb_MIC_runningtime_NULL <- as.numeric(difftime(Scan.perturb_MIC_timeend, Scan.perturb_MIC_timestart, units = "secs"))
 
 Scan.perturb_Lasso_timestart <- Sys.time()
 Scan.perturb_Lasso_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Lasso")
 Scan.perturb_Lasso_timeend <- Sys.time()
-Scan.perturb_Lasso_runningtime_NULL <- Scan.perturb_Lasso_timeend - Scan.perturb_Lasso_timestart
+Scan.perturb_Lasso_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Lasso_timeend, Scan.perturb_Lasso_timestart, units = "secs"))
 
 Scan.perturb_Elastic_timestart <- Sys.time()
 Scan.perturb_Elastic_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Elastic")
 Scan.perturb_Elastic_timeend <- Sys.time()
-Scan.perturb_Elastic_runningtime_NULL <- Scan.perturb_Elastic_timeend - Scan.perturb_Elastic_timestart
+Scan.perturb_Elastic_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Elastic_timeend, Scan.perturb_Elastic_timestart, units = "secs"))
 
 Scan.perturb_Ridge_timestart <- Sys.time()
 Scan.perturb_Ridge_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Ridge")
 Scan.perturb_Ridge_timeend <- Sys.time()
-Scan.perturb_Ridge_runningtime_NULL <- Scan.perturb_Ridge_timeend - Scan.perturb_Ridge_timestart
+Scan.perturb_Ridge_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Ridge_timeend, Scan.perturb_Ridge_timestart, units = "secs"))
 
 Scan.perturb_Phit_timestart <- Sys.time()
 Scan.perturb_Phit_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phit")
 Scan.perturb_Phit_timeend <- Sys.time()
-Scan.perturb_Phit_runningtime_NULL <- Scan.perturb_Phit_timeend - Scan.perturb_Phit_timestart
+Scan.perturb_Phit_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Phit_timeend, Scan.perturb_Phit_timestart, units = "secs"))
 
 Scan.perturb_Phis_timestart <- Sys.time()
 Scan.perturb_Phis_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Phis")
 Scan.perturb_Phis_timeend <- Sys.time()
-Scan.perturb_Phis_runningtime_NULL <- Scan.perturb_Phis_timeend - Scan.perturb_Phis_timestart
+Scan.perturb_Phis_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Phis_timeend, Scan.perturb_Phis_timestart, units = "secs"))
 
 Scan.perturb_Rhop_timestart <- Sys.time()
 Scan.perturb_Rhop_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "Rhop")
 Scan.perturb_Rhop_timeend <- Sys.time()
-Scan.perturb_Rhop_runningtime_NULL <- Scan.perturb_Rhop_timeend - Scan.perturb_Rhop_timestart
+Scan.perturb_Rhop_runningtime_NULL <- as.numeric(difftime(Scan.perturb_Rhop_timeend, Scan.perturb_Rhop_timestart, units = "secs"))
 
 Scan.perturb_IDA_timestart <- Sys.time()
 Scan.perturb_IDA_NULL_res <- Scan.perturb(miRNA_scRNA_norm_filter, mRNA_scRNA_norm_filter, method = "IDA", pcmethod = "stable")
 Scan.perturb_IDA_timeend <- Sys.time()
-Scan.perturb_IDA_runningtime_NULL <- Scan.perturb_IDA_timeend - Scan.perturb_IDA_timestart
+Scan.perturb_IDA_runningtime_NULL <- as.numeric(difftime(Scan.perturb_IDA_timeend, Scan.perturb_IDA_timestart, units = "secs"))
 
 # The prior information is TargetScan
 Scan.perturb_Pearson_TargetScan_res <- lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) Scan.perturb_Pearson_NULL_res[[i]] %s% TargetScan_graph)
@@ -1649,7 +1657,7 @@ Scan.perturb_IDA_ENCORI_res_num <- unlist(lapply(seq(Scan.perturb_IDA_ENCORI_res
 
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
-miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
 miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
 
 Scan.perturb_Pearson_NULL_res_validated <- lapply(seq(Scan.perturb_Pearson_NULL_res), function(i) as_data_frame(Scan.perturb_Pearson_NULL_res[[i]] %s% miRTarget_groundtruth_graph))
@@ -1990,141 +1998,141 @@ library(pbapply)
 library(pcaPP)
 
 set.seed(123)
-ENCORI <- read.csv("ENCORI.csv", header = TRUE, sep = ",")
-TargetScan <- read.csv("TargetScan_8.0.csv", header = TRUE, sep = ",")
+ENCORI <- read.csv("Data/ENCORI.csv", header = TRUE, sep = ",")
+TargetScan <- read.csv("Data/TargetScan_8.0.csv", header = TRUE, sep = ",")
 ENCORI_graph <-make_graph(c(t(ENCORI)), directed = FALSE)
 TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 
 # No prior information
 Scan.perturb_Pearson_timestart_BRCA <- Sys.time()
-Scan.perturb_Pearson_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Pearson")
+Scan.perturb_Pearson_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Pearson")
 Scan.perturb_Pearson_timeend_BRCA <- Sys.time()
-Scan.perturb_Pearson_runningtime_NULL_BRCA <- Scan.perturb_Pearson_timeend_BRCA - Scan.perturb_Pearson_timestart_BRCA
+Scan.perturb_Pearson_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Pearson_timeend_BRCA, Scan.perturb_Pearson_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Spearman_timestart_BRCA <- Sys.time()
-Scan.perturb_Spearman_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Spearman")
+Scan.perturb_Spearman_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Spearman")
 Scan.perturb_Spearman_timeend_BRCA <- Sys.time()
-Scan.perturb_Spearman_runningtime_NULL_BRCA <- Scan.perturb_Spearman_timeend_BRCA - Scan.perturb_Spearman_timestart_BRCA
+Scan.perturb_Spearman_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Spearman_timeend_BRCA, Scan.perturb_Spearman_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Kendall_timestart_BRCA <- Sys.time()
-Scan.perturb_Kendall_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Kendall")
+Scan.perturb_Kendall_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Kendall")
 Scan.perturb_Kendall_timeend_BRCA <- Sys.time()
-Scan.perturb_Kendall_runningtime_NULL_BRCA <- Scan.perturb_Kendall_timeend_BRCA - Scan.perturb_Kendall_timestart_BRCA
+Scan.perturb_Kendall_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Kendall_timeend_BRCA, Scan.perturb_Kendall_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Dcor_timestart_BRCA <- Sys.time()
-Scan.perturb_Dcor_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Dcor")
+Scan.perturb_Dcor_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Dcor")
 Scan.perturb_Dcor_timeend_BRCA <- Sys.time()
-Scan.perturb_Dcor_runningtime_NULL_BRCA <- Scan.perturb_Dcor_timeend_BRCA - Scan.perturb_Dcor_timestart_BRCA
+Scan.perturb_Dcor_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Dcor_timeend_BRCA, Scan.perturb_Dcor_timestart_BRCA, units = "secs"))
 
 Scan.perturb_RDC_timestart_BRCA <- Sys.time()
-Scan.perturb_RDC_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "RDC")
+Scan.perturb_RDC_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "RDC")
 Scan.perturb_RDC_timeend_BRCA <- Sys.time()
-Scan.perturb_RDC_runningtime_NULL_BRCA <- Scan.perturb_RDC_timeend_BRCA - Scan.perturb_RDC_timestart_BRCA
+Scan.perturb_RDC_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_RDC_timeend_BRCA, Scan.perturb_RDC_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Hoeffd_timestart_BRCA <- Sys.time()
-Scan.perturb_Hoeffd_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Hoeffd")
+Scan.perturb_Hoeffd_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Hoeffd")
 Scan.perturb_Hoeffd_timeend_BRCA <- Sys.time()
-Scan.perturb_Hoeffd_runningtime_NULL_BRCA <- Scan.perturb_Hoeffd_timeend_BRCA - Scan.perturb_Hoeffd_timestart_BRCA
+Scan.perturb_Hoeffd_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Hoeffd_timeend_BRCA, Scan.perturb_Hoeffd_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Zscore_timestart_BRCA <- Sys.time()
-Scan.perturb_Zscore_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Zscore")
+Scan.perturb_Zscore_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Zscore")
 Scan.perturb_Zscore_timeend_BRCA <- Sys.time()
-Scan.perturb_Zscore_runningtime_NULL_BRCA <- Scan.perturb_Zscore_timeend_BRCA - Scan.perturb_Zscore_timestart_BRCA
+Scan.perturb_Zscore_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Zscore_timeend_BRCA, Scan.perturb_Zscore_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Biweight_timestart_BRCA <- Sys.time()
-Scan.perturb_Biweight_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Biweight")
+Scan.perturb_Biweight_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Biweight")
 Scan.perturb_Biweight_timeend_BRCA <- Sys.time()
-Scan.perturb_Biweight_runningtime_NULL_BRCA <- Scan.perturb_Biweight_timeend_BRCA - Scan.perturb_Biweight_timestart_BRCA
+Scan.perturb_Biweight_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Biweight_timeend_BRCA, Scan.perturb_Biweight_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Weighted_rank_timestart_BRCA <- Sys.time()
-Scan.perturb_Weighted_rank_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Weighted_rank")
+Scan.perturb_Weighted_rank_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Weighted_rank")
 Scan.perturb_Weighted_rank_timeend_BRCA <- Sys.time()
-Scan.perturb_Weighted_rank_runningtime_NULL_BRCA <- Scan.perturb_Weighted_rank_timeend_BRCA - Scan.perturb_Weighted_rank_timestart_BRCA
+Scan.perturb_Weighted_rank_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Weighted_rank_timeend_BRCA, Scan.perturb_Weighted_rank_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Cosine_timestart_BRCA <- Sys.time()
-Scan.perturb_Cosine_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Cosine")
+Scan.perturb_Cosine_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Cosine")
 Scan.perturb_Cosine_timeend_BRCA <- Sys.time()
-Scan.perturb_Cosine_runningtime_NULL_BRCA <- Scan.perturb_Cosine_timeend_BRCA - Scan.perturb_Cosine_timestart_BRCA
+Scan.perturb_Cosine_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Cosine_timeend_BRCA, Scan.perturb_Cosine_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Euclidean_timestart_BRCA <- Sys.time()
-Scan.perturb_Euclidean_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Euclidean")
+Scan.perturb_Euclidean_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Euclidean")
 Scan.perturb_Euclidean_timeend_BRCA <- Sys.time()
-Scan.perturb_Euclidean_runningtime_NULL_BRCA <- Scan.perturb_Euclidean_timeend_BRCA - Scan.perturb_Euclidean_timestart_BRCA
+Scan.perturb_Euclidean_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Euclidean_timeend_BRCA, Scan.perturb_Euclidean_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Manhattan_timestart_BRCA <- Sys.time()
-Scan.perturb_Manhattan_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Manhattan")
+Scan.perturb_Manhattan_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Manhattan")
 Scan.perturb_Manhattan_timeend_BRCA <- Sys.time()
-Scan.perturb_Manhattan_runningtime_NULL_BRCA <- Scan.perturb_Manhattan_timeend_BRCA - Scan.perturb_Manhattan_timestart_BRCA
+Scan.perturb_Manhattan_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Manhattan_timeend_BRCA, Scan.perturb_Manhattan_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Canberra_timestart_BRCA <- Sys.time()
-Scan.perturb_Canberra_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Canberra")
+Scan.perturb_Canberra_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Canberra")
 Scan.perturb_Canberra_timeend_BRCA <- Sys.time()
-Scan.perturb_Canberra_runningtime_NULL_BRCA <- Scan.perturb_Canberra_timeend_BRCA - Scan.perturb_Canberra_timestart_BRCA
+Scan.perturb_Canberra_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Canberra_timeend_BRCA, Scan.perturb_Canberra_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Chebyshev_timestart_BRCA <- Sys.time()
-Scan.perturb_Chebyshev_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Chebyshev")
+Scan.perturb_Chebyshev_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Chebyshev")
 Scan.perturb_Chebyshev_timeend_BRCA <- Sys.time()
-Scan.perturb_Chebyshev_runningtime_NULL_BRCA <- Scan.perturb_Chebyshev_timeend_BRCA - Scan.perturb_Chebyshev_timestart_BRCA
+Scan.perturb_Chebyshev_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Chebyshev_timeend_BRCA, Scan.perturb_Chebyshev_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Dice_timestart_BRCA <- Sys.time()
-Scan.perturb_Dice_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Dice")
+Scan.perturb_Dice_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Dice")
 Scan.perturb_Dice_timeend_BRCA <- Sys.time()
-Scan.perturb_Dice_runningtime_NULL_BRCA <- Scan.perturb_Dice_timeend_BRCA - Scan.perturb_Dice_timestart_BRCA
+Scan.perturb_Dice_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Dice_timeend_BRCA, Scan.perturb_Dice_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Jaccard_timestart_BRCA <- Sys.time()
-Scan.perturb_Jaccard_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Jaccard")
+Scan.perturb_Jaccard_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Jaccard")
 Scan.perturb_Jaccard_timeend_BRCA <- Sys.time()
-Scan.perturb_Jaccard_runningtime_NULL_BRCA <- Scan.perturb_Jaccard_timeend_BRCA - Scan.perturb_Jaccard_timestart_BRCA
+Scan.perturb_Jaccard_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Jaccard_timeend_BRCA, Scan.perturb_Jaccard_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Mahalanobis_timestart_BRCA <- Sys.time()
-Scan.perturb_Mahalanobis_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Mahalanobis")
+Scan.perturb_Mahalanobis_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Mahalanobis")
 Scan.perturb_Mahalanobis_timeend_BRCA <- Sys.time()
-Scan.perturb_Mahalanobis_runningtime_NULL_BRCA <- Scan.perturb_Mahalanobis_timeend_BRCA - Scan.perturb_Mahalanobis_timestart_BRCA
+Scan.perturb_Mahalanobis_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Mahalanobis_timeend_BRCA, Scan.perturb_Mahalanobis_timestart_BRCA, units = "secs"))
 
 Scan.perturb_MI_timestart_BRCA <- Sys.time()
-Scan.perturb_MI_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "MI")
+Scan.perturb_MI_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "MI")
 Scan.perturb_MI_timeend_BRCA <- Sys.time()
-Scan.perturb_MI_runningtime_NULL_BRCA <- Scan.perturb_MI_timeend_BRCA - Scan.perturb_MI_timestart_BRCA
+Scan.perturb_MI_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_MI_timeend_BRCA, Scan.perturb_MI_timestart_BRCA, units = "secs"))
 
 Scan.perturb_MIC_timestart_BRCA <- Sys.time()
-Scan.perturb_MIC_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "MIC")
+Scan.perturb_MIC_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "MIC")
 Scan.perturb_MIC_timeend_BRCA <- Sys.time()
-Scan.perturb_MIC_runningtime_NULL_BRCA <- Scan.perturb_MIC_timeend_BRCA - Scan.perturb_MIC_timestart_BRCA
+Scan.perturb_MIC_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_MIC_timeend_BRCA, Scan.perturb_MIC_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Lasso_timestart_BRCA <- Sys.time()
-Scan.perturb_Lasso_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Lasso")
+Scan.perturb_Lasso_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Lasso")
 Scan.perturb_Lasso_timeend_BRCA <- Sys.time()
-Scan.perturb_Lasso_runningtime_NULL_BRCA <- Scan.perturb_Lasso_timeend_BRCA - Scan.perturb_Lasso_timestart_BRCA
+Scan.perturb_Lasso_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Lasso_timeend_BRCA, Scan.perturb_Lasso_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Elastic_timestart_BRCA <- Sys.time()
-Scan.perturb_Elastic_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Elastic")
+Scan.perturb_Elastic_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Elastic")
 Scan.perturb_Elastic_timeend_BRCA <- Sys.time()
-Scan.perturb_Elastic_runningtime_NULL_BRCA <- Scan.perturb_Elastic_timeend_BRCA - Scan.perturb_Elastic_timestart_BRCA
+Scan.perturb_Elastic_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Elastic_timeend_BRCA, Scan.perturb_Elastic_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Ridge_timestart_BRCA <- Sys.time()
-Scan.perturb_Ridge_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Ridge")
+Scan.perturb_Ridge_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Ridge")
 Scan.perturb_Ridge_timeend_BRCA <- Sys.time()
-Scan.perturb_Ridge_runningtime_NULL_BRCA <- Scan.perturb_Ridge_timeend_BRCA - Scan.perturb_Ridge_timestart_BRCA
+Scan.perturb_Ridge_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Ridge_timeend_BRCA, Scan.perturb_Ridge_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Phit_timestart_BRCA <- Sys.time()
-Scan.perturb_Phit_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Phit")
+Scan.perturb_Phit_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Phit")
 Scan.perturb_Phit_timeend_BRCA <- Sys.time()
-Scan.perturb_Phit_runningtime_NULL_BRCA <- Scan.perturb_Phit_timeend_BRCA - Scan.perturb_Phit_timestart_BRCA
+Scan.perturb_Phit_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Phit_timeend_BRCA, Scan.perturb_Phit_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Phis_timestart_BRCA <- Sys.time()
-Scan.perturb_Phis_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Phis")
+Scan.perturb_Phis_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Phis")
 Scan.perturb_Phis_timeend_BRCA <- Sys.time()
-Scan.perturb_Phis_runningtime_NULL_BRCA <- Scan.perturb_Phis_timeend_BRCA - Scan.perturb_Phis_timestart_BRCA
+Scan.perturb_Phis_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Phis_timeend_BRCA, Scan.perturb_Phis_timestart_BRCA, units = "secs"))
 
 Scan.perturb_Rhop_timestart_BRCA <- Sys.time()
-Scan.perturb_Rhop_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "Rhop")
+Scan.perturb_Rhop_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "Rhop")
 Scan.perturb_Rhop_timeend_BRCA <- Sys.time()
-Scan.perturb_Rhop_runningtime_NULL_BRCA <- Scan.perturb_Rhop_timeend_BRCA - Scan.perturb_Rhop_timestart_BRCA
+Scan.perturb_Rhop_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_Rhop_timeend_BRCA, Scan.perturb_Rhop_timestart_BRCA, units = "secs"))
 
 Scan.perturb_IDA_timestart_BRCA <- Sys.time()
-Scan.perturb_IDA_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG[[2]], BRCA_mRNA_Exp_DEG[[2]], method = "IDA", pcmethod = "stable)
+Scan.perturb_IDA_NULL_res_BRCA <- Scan.perturb(BRCA_miRNA_Exp_DEG, BRCA_mRNA_Exp_DEG, method = "IDA", pcmethod = "stable)
 Scan.perturb_IDA_timeend_BRCA <- Sys.time()
-Scan.perturb_IDA_runningtime_NULL_BRCA <- Scan.perturb_IDAp_timeend_BRCA - Scan.perturb_IDA_timestart_BRCA
+Scan.perturb_IDA_runningtime_NULL_BRCA <- as.numeric(difftime(Scan.perturb_IDA_timeend_BRCA, Scan.perturb_IDA_timestart_BRCA, units = "secs"))
 
 # The prior information is TargetScan
 Scan.perturb_Pearson_TargetScan_res_BRCA <- lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) Scan.perturb_Pearson_NULL_res_BRCA[[i]] %s% TargetScan_graph)
@@ -2288,7 +2296,7 @@ Scan.perturb_IDA_TargetScan_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_IDA_T
 Scan.perturb_IDA_ENCORI_res_BRCA_num <- unlist(lapply(seq(Scan.perturb_IDA_ENCORI_res_BRCA), function(i) nrow(as_data_frame(Scan.perturb_IDA_ENCORI_res_BRCA[[i]] ))))
 
 # Experimentally validated sample-specific miRNA-mRNA interactions
-miRTarget_groundtruth <- as.matrix(read.csv("miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
+miRTarget_groundtruth <- as.matrix(read.csv("Data/miRTarBase_v9.0+TarBase_v8.0.csv", header = TRUE, sep=","))
 miRTarget_groundtruth_graph <- make_graph(c(t(miRTarget_groundtruth[, 1:2])), directed = FALSE)
 
 Scan.perturb_Pearson_NULL_res_BRCA_validated <- lapply(seq(Scan.perturb_Pearson_NULL_res_BRCA), function(i) as_data_frame(Scan.perturb_Pearson_NULL_res_BRCA[[i]] %s% miRTarget_groundtruth_graph))
