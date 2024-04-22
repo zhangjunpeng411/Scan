@@ -11,7 +11,7 @@
 
 <meta name="author" content=" Junpeng Zhang (zjp@dali.edu.cn) School of Engineering, Dali University" />
 
-<meta name="date" content="2024-04-08" />
+<meta name="date" content="2024-04-22" />
 
 <title>Tutorial for scanning sample-specific miRNA regulation from bulk and single-cell RNA-sequencing data</title>
 
@@ -727,7 +727,7 @@ function toggle_visibility(id1) {
 <p class="author-name">\
 Junpeng Zhang (zjp@dali.edu.cn)\
 School of Engineering, Dali University</p>
-<h4 class="date">2024-04-08</h4>
+<h4 class="date">2024-04-22</h4>
 
 </div>
 
@@ -825,7 +825,8 @@ TargetScan_graph &lt;-make_graph(c(t(TargetScan)), directed = FALSE)</code></pre
 </div>
 <div id="predicting-sample-specific-mirna-mrna-regulatory-networks" class="section level1" number="4">
 <h1><span class="header-section-number">4</span> Predicting sample-specific miRNA-mRNA regulatory networks</h1>
-<p>The utility functions for scanning sample-specific miRNA regulation are collected in two source files: <strong>Scan.interp.R</strong> (using a linear interpolation strategy) and <strong>Scan.perturb.R</strong> (using a statistical perturbation strategy). In this tutorial, we select five representative network inference methods (Pearson, Euclidean, MI, Lasso, Phit) spanning five types (Correlation, Distance, Information, Regression and Proportionality) and two strategies (Scan.interp and Scan.perturb) to infer cell-specific miRNA regulation from K562 single-cell RNA-sequencing data. The prior information of miRNA targets has three cases: None (no prior information), TargetScan (prior information of TargetScan), ENCORI (prior information of ENCORI).</p>
+<p>The utility functions for scanning sample-specific miRNA regulation are collected in two source files: <strong>Scan.interp.R</strong> (using a linear interpolation strategy) and <strong>Scan.perturb.R</strong> (using a statistical perturbation strategy). For a large-scale dataset (e.g. the number of samples is more than 100), we recommend users selecting the network inference methods with better efficiency or higher scalability (i.e. less runtime). For example, in our work, as for the linear interpolation strategy (Scan.interp), the runtime of 7 out of 27 network inference methods (Pearson, Z-score, Bcor, Wcor, Phit, Phis and Rhop) is less than an hour for both K562 and BRCA datasets, and have a good efficiency or scalability. In addition, for the statistical perturbation strategy (Scan.perturb), the runtime of 11 out of 27 network inference methods (Pearson, Z-score, Bcor, Wcor, Euclidean, Manhattan, Canberra, Chebyshev, Phit, Phis and Rhop) is less than an hour in both K562 and BRCA datasets, indicating a good efficiency or scalability too.</p>
+<p>In this tutorial, we select five representative network inference methods (Pearson, Euclidean, MI, Lasso, Phit) spanning five types (Correlation, Distance, Information, Regression and Proportionality) and two strategies (Scan.interp and Scan.perturb) to infer cell-specific miRNA regulation from small-scale K562 single-cell RNA-sequencing data. The prior information of miRNA targets has three cases: None (no prior information), TargetScan (prior information of TargetScan), ENCORI (prior information of ENCORI).</p>
 <pre class="r"><code># No prior information with Scan.interp
 source(&quot;R/Scan.interp.R&quot;)
 Scan.interp_Pearson_timestart &lt;- Sys.time()
@@ -1058,8 +1059,8 @@ AP_TargetScan_rank &lt;- rank(AP_TargetScan)
 AP_ENCORI_rank &lt;- rank(AP_ENCORI)
 AP_rank &lt;- (AP_None_rank + AP_TargetScan_rank + AP_ENCORI_rank)/3
 AP_rank</code></pre>
-<pre><code>##  [1]  6.000000  4.333333  3.333333 10.000000  3.333333  5.333333  3.000000
-##  [8]  5.000000  9.000000  5.666667</code></pre>
+<pre><code>##  [1] 6.000000 4.333333 3.333333 9.666667 3.333333 5.333333 3.000000 5.000000
+##  [9] 9.333333 5.666667</code></pre>
 </div>
 <div id="efficiency-comparison" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Efficiency comparison</h1>
@@ -1076,8 +1077,8 @@ Time_rank</code></pre>
 <p>For selecting optimal combination, we consider both accuracy and efficiency and use an overall rank score [28] to evaluate the performance of each combination. A combination with a larger overall rank score is regarded as a optimal combination.</p>
 <pre class="r"><code>Overall_rank &lt;- (AP_rank + Time_rank)/2
 Overall_rank</code></pre>
-<pre><code>##  [1] 7.500000 4.666667 3.166667 5.500000 3.666667 7.666667 5.500000 5.500000
-##  [9] 5.500000 6.333333</code></pre>
+<pre><code>##  [1] 7.500000 4.666667 3.166667 5.333333 3.666667 7.666667 5.500000 5.500000
+##  [9] 5.666667 6.333333</code></pre>
 </div>
 <div id="conclusions" class="section level1" number="8">
 <h1><span class="header-section-number">8</span> Conclusions</h1>

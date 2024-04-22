@@ -92,7 +92,9 @@ TargetScan_graph <-make_graph(c(t(TargetScan)), directed = FALSE)
 For convenience, the full list of our prepared bulk and single-cell transcriptomics datasets in the Scan paper can be obtained from [here](https://drive.google.com/file/d/1MgLNYcALNi4nR4S9MiYTGyUCekbGwM_k/view?usp=drive_link).
 
 # Predicting sample-specific miRNA-mRNA regulatory networks
-The utility functions for scanning sample-specific miRNA regulation are collected in two source files: **Scan.interp.R** (using a linear interpolation strategy) and **Scan.perturb.R** (using a statistical perturbation strategy). In this tutorial, we select five representative network inference methods (Pearson, Euclidean, MI, Lasso, Phit) spanning five types (Correlation, Distance, Information, Regression and Proportionality) and two strategies (Scan.interp and Scan.perturb) to infer cell-specific miRNA regulation from K562 single-cell RNA-sequencing data. The prior information of miRNA targets has three cases: None (no prior information), TargetScan (prior information of TargetScan), ENCORI (prior information of ENCORI).
+The utility functions for scanning sample-specific miRNA regulation are collected in two source files: **Scan.interp.R** (using a linear interpolation strategy) and **Scan.perturb.R** (using a statistical perturbation strategy). For a large-scale dataset (e.g. the number of samples is more than 100), we recommend users selecting the network inference methods with better efficiency or higher scalability (i.e. less runtime). For example, in our work, as for the linear interpolation strategy (Scan.interp), the runtime of 7 out of 27 network inference methods (Pearson, Z-score, Bcor, Wcor, Phit, Phis and Rhop) is less than an hour for both K562 and BRCA datasets, and have a good efficiency or scalability. In addition, for the statistical perturbation strategy (Scan.perturb), the runtime of 11 out of 27 network inference methods (Pearson, Z-score, Bcor, Wcor, Euclidean, Manhattan, Canberra, Chebyshev, Phit, Phis and Rhop) is less than an hour in both K562 and BRCA datasets, indicating a good efficiency or scalability too. 
+
+In this tutorial, we select five representative network inference methods (Pearson, Euclidean, MI, Lasso, Phit) spanning five types (Correlation, Distance, Information, Regression and Proportionality) and two strategies (Scan.interp and Scan.perturb) to infer cell-specific miRNA regulation from small-scale K562 single-cell RNA-sequencing data. The prior information of miRNA targets has three cases: None (no prior information), TargetScan (prior information of TargetScan), ENCORI (prior information of ENCORI).
 
 ```{r, eval=TRUE, include=TRUE}
 # No prior information with Scan.interp
@@ -331,6 +333,7 @@ AP_None_rank <- rank(AP_None)
 AP_TargetScan_rank <- rank(AP_TargetScan)
 AP_ENCORI_rank <- rank(AP_ENCORI)
 AP_rank <- (AP_None_rank + AP_TargetScan_rank + AP_ENCORI_rank)/3
+AP_rank
 ```
 
 # Efficiency comparison
@@ -341,6 +344,7 @@ For efficiency comparison, we compare the runtime of different combinations in t
 Time <- c(Scan.interp_Pearson_runningtime_NULL, Scan.interp_Euclidean_runningtime_NULL, Scan.interp_MI_runningtime_NULL, Scan.interp_Lasso_runningtime_NULL, Scan.interp_Phit_runningtime_NULL, Scan.perturb_Pearson_runningtime_NULL, Scan.perturb_Euclidean_runningtime_NULL, Scan.perturb_MI_runningtime_NULL, Scan.perturb_Lasso_runningtime_NULL, Scan.perturb_Phit_runningtime_NULL)
 
 Time_rank <- rank(-Time)
+Time_rank
 ```
 
 # Optimal combination selection
@@ -348,6 +352,7 @@ For selecting optimal combination, we consider both accuracy and efficiency and 
 
 ```{r, eval=TRUE, include=TRUE}
 Overall_rank <- (AP_rank + Time_rank)/2
+Overall_rank
 ```
 
 # Conclusions
